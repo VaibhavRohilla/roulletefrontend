@@ -29,6 +29,12 @@ export class GameUI {
     
     // Connection Status
     private connectionStatusText!: Text;
+    
+    // No Games Banner
+    private noGamesBanner!: Container;
+    private noGamesBannerBackground!: Graphics;
+    private noGamesBannerText!: Text;
+    private bannerVisible: boolean = false;
 
     constructor(container: Container, events: GameUIEvents) {
         this.container = container;
@@ -45,33 +51,133 @@ export class GameUI {
         this.createTimeDisplay();
         this.createCountdownOverlay();
         this.createConnectionStatus();
+        this.createNoGamesBanner();
     }
 
     /**
-     * 🕒 Create real-time dual timezone display
+     * 🕒 Create elegant casino-style dual timezone display
      */
     private createTimeDisplay(): void {
+        // Create sophisticated time display container
+        const timeContainer = new Container();
+        
+        // Elegant casino-style background for time display
+        const timeBackground = new Graphics();
+        this.drawTimeDisplayBackground(timeBackground);
+        timeContainer.addChild(timeBackground);
+
+        // Premium typography with casino elegance
         const timeStyle = new TextStyle({
-            fontFamily: UI_CONFIG.timeDisplay.fontFamily,
-            fontSize: UI_CONFIG.timeDisplay.fontSize,
-            fill: UI_CONFIG.timeDisplay.color,
+            fontFamily: '"Times New Roman", "Georgia", serif', // Elegant serif font
+            fontSize: 20, // Slightly larger for prominence
+            fontWeight: 'bold',
+            fill: '#FFD700', // Luxurious gold
             align: 'center',
+            stroke: { color: '#000000', width: 1.5 }, // Subtle black outline
+            dropShadow: {
+                color: '#000000',
+                blur: 4,
+                angle: Math.PI / 4,
+                distance: 2
+            },
+            letterSpacing: 1, // Elegant spacing
             wordWrap: true,
             wordWrapWidth: 400,
-            leading: 8
+            leading: 6
         });
 
         this.timeDisplay = new Text(this.formatCurrentTime(), timeStyle);
         this.timeDisplay.anchor.set(0.5);
-        this.timeDisplay.x = UI_CONFIG.timeDisplay.x;
-        this.timeDisplay.y = UI_CONFIG.timeDisplay.y;
-        this.container.addChild(this.timeDisplay);
+        
+        // Position relative to background center
+        const bgWidth = 380;
+        const bgHeight = 50;
+        this.timeDisplay.x = bgWidth / 2;
+        this.timeDisplay.y = bgHeight / 2;
+        timeContainer.addChild(this.timeDisplay);
 
-        console.log("🕒 Time display created");
+        // Position the entire time container
+        timeContainer.x = UI_CONFIG.timeDisplay.x - bgWidth / 2;
+        timeContainer.y = UI_CONFIG.timeDisplay.y - bgHeight / 2;
+        
+        this.container.addChild(timeContainer);
+
+        console.log("🕒 Elegant casino time display created");
     }
 
     /**
-     * 🕒 Format current time for Nepal (NPT) and India (IST) time zones
+     * 🎨 Draw sophisticated background for time display
+     */
+    private drawTimeDisplayBackground(graphics: Graphics): void {
+        const width = 380;
+        const height = 50;
+        const radius = 8;
+
+        graphics.clear();
+
+        // Subtle drop shadow
+        graphics.roundRect(3, 3, width, height, radius);
+        graphics.fill({ color: 0x000000, alpha: 0.4 });
+
+        // Main casino green background with gradient effect
+        graphics.beginFill(0x0D4F3C, 0.8); // Semi-transparent casino green
+        graphics.roundRect(0, 0, width, height, radius);
+        graphics.endFill();
+
+        // Inner highlight for depth
+        graphics.beginFill(0x1A6B4F, 0.4); // Lighter green
+        graphics.roundRect(2, 2, width - 4, height / 3, radius - 1);
+        graphics.endFill();
+
+        // Elegant golden border
+        graphics.lineStyle(2, 0xFFD700, 0.8); // Gold border
+        graphics.roundRect(0, 0, width, height, radius);
+
+        // Subtle inner accent
+        graphics.lineStyle(1, 0xFFD700, 0.4);
+        graphics.roundRect(2, 2, width - 4, height - 4, radius - 1);
+
+        // Add decorative corner details
+        this.drawTimeDisplayCorners(graphics, width, height);
+    }
+
+    /**
+     * ✨ Add elegant corner decorations for time display
+     */
+    private drawTimeDisplayCorners(graphics: Graphics, width: number, height: number): void {
+        const accentSize = 8;
+        const color = 0xFFD700;
+        
+        // Delicate corner accents
+        graphics.lineStyle(1, color, 0.6);
+        
+        // Top-left
+        graphics.moveTo(6, 6);
+        graphics.lineTo(6 + accentSize, 6);
+        graphics.moveTo(6, 6);
+        graphics.lineTo(6, 6 + accentSize);
+
+        // Top-right
+        graphics.moveTo(width - 6, 6);
+        graphics.lineTo(width - 6 - accentSize, 6);
+        graphics.moveTo(width - 6, 6);
+        graphics.lineTo(width - 6, 6 + accentSize);
+
+        // Bottom-left
+        graphics.moveTo(6, height - 6);
+        graphics.lineTo(6 + accentSize, height - 6);
+        graphics.moveTo(6, height - 6);
+        graphics.lineTo(6, height - 6 - accentSize);
+
+        // Bottom-right
+        graphics.moveTo(width - 6, height - 6);
+        graphics.lineTo(width - 6 - accentSize, height - 6);
+        graphics.moveTo(width - 6, height - 6);
+        graphics.lineTo(width - 6, height - 6 - accentSize);
+    }
+
+    /**
+     * 🕒 Format current time with elegant casino styling for Nepal (NPT) and India (IST)
      */
     private formatCurrentTime(): string {
         const now = new Date();
@@ -84,15 +190,17 @@ export class GameUI {
         const indiaTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000) - (now.getTimezoneOffset() * 60 * 1000));
         const indiaFormatted = this.formatTime12Hour(indiaTime);
         
-        return `NPT: ${nepalFormatted} \\ IST: ${indiaFormatted}`;
+        // Elegant casino-style formatting with decorative elements
+        return `NPT: ${nepalFormatted}  •  IST: ${indiaFormatted}`;
     }
 
     /**
-     * 🕒 Helper function to format time in 12-hour format
+     * 🕒 Format time in elegant 12-hour format with casino styling
      */
     private formatTime12Hour(date: Date): string {
         let hours = date.getHours();
         const minutes = date.getMinutes().toString().padStart(2, '0');
+        // const seconds = date.getSeconds().toString().padStart(2, '0');
         const ampm = hours >= 12 ? 'AM' : 'PM';
         
         // Convert to 12-hour format
@@ -100,7 +208,9 @@ export class GameUI {
         hours = hours ? hours : 12; // Hour '0' should be '12'
         
         const displayHours = hours.toString().padStart(2, '0');
-        return `${displayHours}:${minutes} ${ampm}`;
+        
+        // Elegant formatting with subtle styling
+        return `${displayHours}:${minutes}:${ampm}`;
     }
 
     /**
@@ -126,27 +236,48 @@ export class GameUI {
         this.countdownBackground.y = centerY - UI_CONFIG.countdown.containerHeight / 2;
         this.countdownOverlay.addChild(this.countdownBackground);
 
-        // Countdown text with modern styling
+        // Casino-style countdown text with elegant typography
         const textStyle = new TextStyle({
-            fontFamily: 'Arial',
-            fontSize: UI_CONFIG.countdown.fontSize,
-            fill: UI_CONFIG.countdown.textColor,
-            align: 'center',
+            fontFamily: '"Times New Roman", "Georgia", serif', // Elegant serif font
+            fontSize: UI_CONFIG.countdown.fontSize + 8, // Slightly larger
             fontWeight: 'bold',
-            stroke: { color: UI_CONFIG.countdown.shadowColor, width: 2 },
+            fill: '#FFD700', // Luxurious gold
+            align: 'center',
+            stroke: { color: '#000000', width: 3 }, // Bold black outline
             dropShadow: {
-                color: UI_CONFIG.countdown.shadowColor,
-                blur: 4,
-                angle: Math.PI / 2,
-                distance: 2
-            }
+                color: '#000000',
+                blur: 8,
+                angle: Math.PI / 4,
+                distance: 4
+            },
+            letterSpacing: 3 // Spaced out for elegance
         });
 
         this.countdownText = new Text('0', textStyle);
         this.countdownText.anchor.set(0.5);
         this.countdownText.x = centerX;
-        this.countdownText.y = centerY;
+        this.countdownText.y = centerY+ this.countdownText.height/4;
         this.countdownOverlay.addChild(this.countdownText);
+
+        // Add elegant subtitle for countdown
+        const subtitleStyle = new TextStyle({
+            fontFamily: 'Arial',
+            fontSize: 18,
+            fill: '#CCCCCC',
+            align: 'center',
+            fontStyle: 'italic',
+            letterSpacing: 1
+        });
+
+        const subtitleText = new Text('Next Round Begins In', subtitleStyle);
+        subtitleText.anchor.set(0.5);
+        subtitleText.x = centerX;
+        subtitleText.y = centerY - subtitleText.height*1.9;
+        this.countdownOverlay.addChild(subtitleText);
+
+        // Set pivot point to center for proper scaling animations
+        this.countdownOverlay.pivot.set(centerX, centerY);
+        this.countdownOverlay.position.set(centerX, centerY);
 
         // Initially hidden
         this.countdownOverlay.visible = false;
@@ -156,48 +287,309 @@ export class GameUI {
     }
 
     /**
-     * 🎨 Draw modern countdown background with glassmorphism effect
+     * 🎨 Draw elegant casino-style countdown background
      */
     private drawCountdownBackground(): void {
         const countdownConfig = UI_CONFIG.countdown;
-        const currentBorderColor = (this.countdownBackground as any).currentBorderColor || countdownConfig.borderColor;
+        const currentBorderColor = (this.countdownBackground as any).currentBorderColor || 0xFFD700; // Gold default
         
         this.countdownBackground.clear();
 
-        // Drop shadow
-        this.countdownBackground.roundRect(4, 4, countdownConfig.containerWidth, countdownConfig.containerHeight, countdownConfig.borderRadius);
-        this.countdownBackground.fill({color: 0x000000, alpha: 0.7});
+        // Luxurious drop shadow
+        this.countdownBackground.roundRect(6, 6, countdownConfig.containerWidth, countdownConfig.containerHeight, countdownConfig.borderRadius);
+        this.countdownBackground.fill({color: 0x000000, alpha: 0.8});
 
-        // Main background with glassmorphism
-        this.countdownBackground.fill({color: countdownConfig.backgroundColor, alpha: 0.9});
+        // Main casino green background with gradient effect
+        this.countdownBackground.beginFill(0x0D4F3C, 0.95); // Deep casino green
+        this.countdownBackground.roundRect(0, 0, countdownConfig.containerWidth, countdownConfig.containerHeight, countdownConfig.borderRadius);
+        this.countdownBackground.endFill();
+
+        // Inner gradient highlight for depth
+        this.countdownBackground.beginFill(0x1A6B4F, 0.6); // Lighter green
+        this.countdownBackground.roundRect(4, 4, countdownConfig.containerWidth - 8, countdownConfig.containerHeight / 3, countdownConfig.borderRadius - 4);
+        this.countdownBackground.endFill();
+
+        // Elegant golden border with glow effect
+        this.countdownBackground.lineStyle(4, currentBorderColor, 1);
         this.countdownBackground.roundRect(0, 0, countdownConfig.containerWidth, countdownConfig.containerHeight, countdownConfig.borderRadius);
 
-        // Glowing border with dynamic color
-        this.countdownBackground.lineStyle(countdownConfig.borderWidth, currentBorderColor, 1);
-        this.countdownBackground.roundRect(0, 0, countdownConfig.containerWidth, countdownConfig.containerHeight, countdownConfig.borderRadius);
+        // Inner golden accent line
+        this.countdownBackground.lineStyle(1, currentBorderColor, 0.7);
+        this.countdownBackground.roundRect(6, 6, countdownConfig.containerWidth - 12, countdownConfig.containerHeight - 12, countdownConfig.borderRadius - 6);
 
-        // Inner glow effect with dynamic color
-        this.countdownBackground.lineStyle(1, currentBorderColor, 0.3);
-        this.countdownBackground.roundRect(2, 2, countdownConfig.containerWidth - 4, countdownConfig.containerHeight - 4, countdownConfig.borderRadius - 2);
+        // Add casino-style corner decorations
+        this.drawCountdownCornerDecorations(countdownConfig.containerWidth, countdownConfig.containerHeight, currentBorderColor);
     }
 
     /**
-     * 📡 Create connection status display
+     * ✨ Add elegant corner decorations to countdown
+     */
+    private drawCountdownCornerDecorations(width: number, height: number, color: number): void {
+        const accentSize = 15;
+        
+        // Casino-style corner accents
+        this.countdownBackground.lineStyle(2, color, 0.9);
+        
+        // Top corners
+        this.countdownBackground.moveTo(15, 15);
+        this.countdownBackground.lineTo(15 + accentSize, 15);
+        this.countdownBackground.moveTo(15, 15);
+        this.countdownBackground.lineTo(15, 15 + accentSize);
+
+        this.countdownBackground.moveTo(width - 15, 15);
+        this.countdownBackground.lineTo(width - 15 - accentSize, 15);
+        this.countdownBackground.moveTo(width - 15, 15);
+        this.countdownBackground.lineTo(width - 15, 15 + accentSize);
+
+        // Bottom corners
+        this.countdownBackground.moveTo(15, height - 15);
+        this.countdownBackground.lineTo(15 + accentSize, height - 15);
+        this.countdownBackground.moveTo(15, height - 15);
+        this.countdownBackground.lineTo(15, height - 15 - accentSize);
+
+        this.countdownBackground.moveTo(width - 15, height - 15);
+        this.countdownBackground.lineTo(width - 15 - accentSize, height - 15);
+        this.countdownBackground.moveTo(width - 15, height - 15);
+        this.countdownBackground.lineTo(width - 15, height - 15 - accentSize);
+    }
+
+    /**
+     * 📡 Create elegant casino-style connection status display
      */
     private createConnectionStatus(): void {
+        // Create sophisticated connection status container
+        const statusContainer = new Container();
+        
+        // Elegant background for connection status
+        const statusBackground = new Graphics();
+        this.drawConnectionStatusBackground(statusBackground);
+        statusContainer.addChild(statusBackground);
+
+        // Premium casino-style typography
         const statusStyle = new TextStyle({
-            fontFamily: 'Arial',
-            fontSize: 16,
-            fill: 0xFFFFFF,
-            align: 'left'
+            fontFamily: '"Times New Roman", "Georgia", serif', // Elegant serif font
+            fontSize: 14,
+            fontWeight: 'bold',
+            fill: '#FFD700', // Luxurious gold
+            align: 'left',
+            stroke: { color: '#000000', width: 1 }, // Subtle outline
+            dropShadow: {
+                color: '#000000',
+                blur: 3,
+                angle: Math.PI / 4,
+                distance: 1
+            },
+            letterSpacing: 0.5
         });
 
         this.connectionStatusText = new Text('🟡 CONNECTING', statusStyle);
-        this.connectionStatusText.x = 20;
-        this.connectionStatusText.y = config.logicalHeight - 40;
-        this.container.addChild(this.connectionStatusText);
+        this.connectionStatusText.anchor.set(0, 0.5);
+        this.connectionStatusText.x = 15; // Padding from background edge
+        this.connectionStatusText.y = 20; // Center vertically in background
+        statusContainer.addChild(this.connectionStatusText);
 
-        console.log("📡 Connection status display created");
+        // Position the status container
+        statusContainer.x = 20;
+        statusContainer.y = config.logicalHeight - 50;
+        this.container.addChild(statusContainer);
+
+        console.log("📡 Elegant casino connection status created");
+    }
+
+    /**
+     * 🎨 Draw sophisticated background for connection status
+     */
+    private drawConnectionStatusBackground(graphics: Graphics): void {
+        const width = 180;
+        const height = 40;
+        const radius = 6;
+
+        graphics.clear();
+
+        // Subtle drop shadow
+        graphics.roundRect(2, 2, width, height, radius);
+        graphics.fill({ color: 0x000000, alpha: 0.3 });
+
+        // Main casino green background
+        graphics.beginFill(0x0D4F3C, 0.7); // Semi-transparent casino green
+        graphics.roundRect(0, 0, width, height, radius);
+        graphics.endFill();
+
+        // Inner highlight
+        graphics.beginFill(0x1A6B4F, 0.3); // Lighter green
+        graphics.roundRect(2, 2, width - 4, height / 3, radius - 1);
+        graphics.endFill();
+
+        // Elegant golden border
+        graphics.lineStyle(1.5, 0xFFD700, 0.7); // Gold border
+        graphics.roundRect(0, 0, width, height, radius);
+
+        // Add small corner accents
+        this.drawConnectionStatusCorners(graphics, width, height);
+    }
+
+    /**
+     * ✨ Add delicate corner decorations for connection status
+     */
+    private drawConnectionStatusCorners(graphics: Graphics, width: number, height: number): void {
+        const accentSize = 6;
+        const color = 0xFFD700;
+        
+        // Subtle corner accents
+        graphics.lineStyle(1, color, 0.5);
+        
+        // Top-left and bottom-right corners only for subtle elegance
+        graphics.moveTo(4, 4);
+        graphics.lineTo(4 + accentSize, 4);
+        graphics.moveTo(4, 4);
+        graphics.lineTo(4, 4 + accentSize);
+
+        graphics.moveTo(width - 4, height - 4);
+        graphics.lineTo(width - 4 - accentSize, height - 4);
+        graphics.moveTo(width - 4, height - 4);
+        graphics.lineTo(width - 4, height - 4 - accentSize);
+    }
+
+    /**
+     * 🚫 Create "No Current Games" banner with elegant casino styling and overlay
+     */
+    private createNoGamesBanner(): void {
+        this.noGamesBanner = new Container();
+
+        // Full screen overlay background (like countdown)
+        const overlay = new Graphics();
+        overlay.rect(-config.logicalWidth, -config.logicalHeight, config.logicalWidth*10, config.logicalHeight*10);
+        overlay.fill({color: 0x000000, alpha: 0.6}); // Slightly lighter than countdown overlay
+        overlay.interactive = true;
+        this.noGamesBanner.addChild(overlay);
+
+        // Center position
+        const centerX = config.logicalWidth / 2;
+        const centerY = config.logicalHeight / 2; // Center of screen
+
+        // Banner dimensions
+        const bannerWidth = 500;
+        const bannerHeight = 120;
+
+        // Elegant banner background with casino theme
+        this.noGamesBannerBackground = new Graphics();
+        this.drawNoGamesBannerBackground(bannerWidth, bannerHeight);
+        this.noGamesBannerBackground.x = centerX - bannerWidth / 2;
+        this.noGamesBannerBackground.y = centerY - bannerHeight / 2;
+        this.noGamesBanner.addChild(this.noGamesBannerBackground);
+
+        // Casino-style text with elegant typography
+        const bannerTextStyle = new TextStyle({
+            fontFamily: '"Times New Roman", "Georgia", serif',
+            fontSize: 28,
+            fontWeight: 'bold',
+            fill: '#FFD700', // Gold color for casino elegance
+            align: 'center',
+            stroke: { color: '#000000', width: 2 },
+            dropShadow: {
+                color: '#000000',
+                blur: 6,
+                angle: Math.PI / 4,
+                distance: 3
+            },
+            letterSpacing: 2
+        });
+
+        this.noGamesBannerText = new Text('🎰 NO CURRENT GAMES 🎰', bannerTextStyle);
+        this.noGamesBannerText.anchor.set(0.5);
+        this.noGamesBannerText.x = centerX;
+        this.noGamesBannerText.y = centerY - 10;
+        this.noGamesBanner.addChild(this.noGamesBannerText);
+
+        // Secondary message
+        const subTextStyle = new TextStyle({
+            fontFamily: 'Arial',
+            fontSize: 16,
+            fill: '#CCCCCC',
+            align: 'center',
+            fontStyle: 'italic'
+        });
+
+        const subText = new Text('Please wait for the next round to begin', subTextStyle);
+        subText.anchor.set(0.5);
+        subText.x = centerX;
+        subText.y = centerY + 30; 
+        this.noGamesBanner.addChild(subText);
+
+        // Set pivot point to center for proper scaling animations
+        this.noGamesBanner.pivot.set(centerX, centerY);
+        this.noGamesBanner.position.set(centerX, centerY);
+
+        // Initially hidden
+        this.noGamesBanner.visible = false;
+        this.container.addChild(this.noGamesBanner);
+
+        console.log("🚫 No Games banner with overlay created");
+    }
+
+    /**
+     * 🎨 Draw elegant casino-style banner background
+     */
+    private drawNoGamesBannerBackground(width: number, height: number): void {
+        this.noGamesBannerBackground.clear();
+
+        // Drop shadow
+        this.noGamesBannerBackground.roundRect(4, 4, width, height, 15);
+        this.noGamesBannerBackground.fill({ color: 0x000000, alpha: 0.6 });
+
+        // Main background with casino green gradient effect
+        this.noGamesBannerBackground.beginFill(0x0D4F3C); // Dark casino green
+        this.noGamesBannerBackground.roundRect(0, 0, width, height, 15);
+        this.noGamesBannerBackground.endFill();
+
+        // Inner gradient highlight
+        this.noGamesBannerBackground.beginFill(0x1A6B4F, 0.7); // Lighter green
+        this.noGamesBannerBackground.roundRect(2, 2, width - 4, height / 3, 13);
+        this.noGamesBannerBackground.endFill();
+
+        // Golden border with casino elegance
+        this.noGamesBannerBackground.lineStyle(3, 0xFFD700, 1); // Gold border
+        this.noGamesBannerBackground.roundRect(0, 0, width, height, 15);
+
+        // Inner golden accent
+        this.noGamesBannerBackground.lineStyle(1, 0xFFD700, 0.6);
+        this.noGamesBannerBackground.roundRect(4, 4, width - 8, height - 8, 11);
+
+        // Decorative corner accents
+        this.drawCornerAccents(width, height);
+    }
+
+    /**
+     * ✨ Add decorative corner accents for premium feel
+     */
+    private drawCornerAccents(width: number, height: number): void {
+        const accentSize = 20;
+        const color = 0xFFD700;
+        
+        // Top-left corner
+        this.noGamesBannerBackground.lineStyle(2, color, 0.8);
+        this.noGamesBannerBackground.moveTo(10, 10);
+        this.noGamesBannerBackground.lineTo(10 + accentSize, 10);
+        this.noGamesBannerBackground.moveTo(10, 10);
+        this.noGamesBannerBackground.lineTo(10, 10 + accentSize);
+
+        // Top-right corner
+        this.noGamesBannerBackground.moveTo(width - 10, 10);
+        this.noGamesBannerBackground.lineTo(width - 10 - accentSize, 10);
+        this.noGamesBannerBackground.moveTo(width - 10, 10);
+        this.noGamesBannerBackground.lineTo(width - 10, 10 + accentSize);
+
+        // Bottom-left corner
+        this.noGamesBannerBackground.moveTo(10, height - 10);
+        this.noGamesBannerBackground.lineTo(10 + accentSize, height - 10);
+        this.noGamesBannerBackground.moveTo(10, height - 10);
+        this.noGamesBannerBackground.lineTo(10, height - 10 - accentSize);
+
+        // Bottom-right corner
+        this.noGamesBannerBackground.moveTo(width - 10, height - 10);
+        this.noGamesBannerBackground.lineTo(width - 10 - accentSize, height - 10);
+        this.noGamesBannerBackground.moveTo(width - 10, height - 10);
+        this.noGamesBannerBackground.lineTo(width - 10, height - 10 - accentSize);
     }
 
     /**
@@ -214,11 +606,12 @@ export class GameUI {
         this.countdownValue = seconds;
         this.isCountdownActive = true;
         this.countdownOverlay.visible = true;
+        this.countdownOverlay.interactive = true;
         this.countdownText.text = seconds.toString();
 
         console.log(`⏳ Starting countdown from ${seconds} seconds`);
 
-        // Entrance animation
+        // Entrance animation (with proper pivot centering)
         this.countdownOverlay.alpha = 0;
         this.countdownOverlay.scale.set(0.8);
         
@@ -263,6 +656,10 @@ export class GameUI {
             onComplete: () => {
                 this.countdownOverlay.visible = false;
                 this.countdownOverlay.scale.set(1);
+                // Reset position (with proper pivot centering)
+                const centerX = config.logicalWidth / 2;
+                const centerY = config.logicalHeight / 2;
+                this.countdownOverlay.position.set(centerX, centerY);
             }
         });
 
@@ -311,45 +708,86 @@ export class GameUI {
     }
 
     /**
-     * 💥 Animate number change with pulse effect
+     * 💎 Animate number change with elegant casino-style effects
      */
     private animateNumberChange(value: number): void {
-        // Scale pulse animation
-        this.countdownText.scale.set(1.2);
+        // Elegant scale pulse with casino bounce
+        this.countdownText.scale.set(1.3);
         Globals.gsap?.to(this.countdownText.scale, {
             x: 1,
             y: 1,
-            duration: 0.3,
-            ease: "back.out(2)"
+            duration: 0.4,
+            ease: "elastic.out(1, 0.5)"
         });
 
-        // Color flash for urgency (last 3 seconds)
+        // Sophisticated color transitions for urgency
         if (value <= 3 && value > 0) {
-            const originalColor = UI_CONFIG.countdown.textColor;
-            this.countdownText.style.fill = 0xFF4444; // Red flash
+            // Elegant red flash for final seconds
+            const originalFill = '#FFD700';
+            this.countdownText.style.fill = '#FF6B6B'; // Soft red
             
             Globals.gsap?.to(this.countdownText.style, {
-                fill: originalColor,
-                duration: 0.4,
+                fill: originalFill,
+                duration: 0.6,
+                ease: "power3.out"
+            });
+
+            // Add slight rotation for drama
+            this.countdownText.rotation = -0.1;
+            Globals.gsap?.to(this.countdownText, {
+                rotation: 0,
+                duration: 0.3,
                 ease: "power2.out"
+            });
+        } else if (value <= 10 && value > 3) {
+            // Subtle orange flash for warning
+            const originalFill = '#FFD700';
+            this.countdownText.style.fill = '#FFB347';
+            
+            Globals.gsap?.to(this.countdownText.style, {
+                fill: originalFill,
+                duration: 0.5,
+                ease: "power2.out"
+            });
+        }
+
+        // Add subtle glow effect for last few seconds
+        if (value <= 5) {
+            Globals.gsap?.to(this.countdownText, {
+                alpha: 0.7,
+                duration: 0.2,
+                ease: "power2.inOut",
+                yoyo: true,
+                repeat: 1
             });
         }
     }
 
     /**
-     * 🚨 Update visual urgency based on remaining time
+     * 🚨 Update visual urgency based on remaining time with casino theme
      */
     private updateCountdownUrgency(value: number): void {
-        // Update border color by redrawing background with urgency colors
+        // Update border color with casino-appropriate urgency colors
         if (value <= 3) {
-            (this.countdownBackground as any).currentBorderColor = 0xFF4444; // Red for last 3 seconds
+            (this.countdownBackground as any).currentBorderColor = 0xFF2D2D; // Elegant red for urgency
         } else if (value <= 10) {
-            (this.countdownBackground as any).currentBorderColor = 0xFF8844; // Orange for last 10 seconds
+            (this.countdownBackground as any).currentBorderColor = 0xFF8C42; // Warm orange for warning
         } else {
-            (this.countdownBackground as any).currentBorderColor = UI_CONFIG.countdown.borderColor; // Default blue
+            (this.countdownBackground as any).currentBorderColor = 0xFFD700; // Luxurious gold default
         }
         
         this.drawCountdownBackground();
+
+        // Add subtle pulsing effect for urgency
+        if (value <= 5 && this.countdownBackground) {
+            Globals.gsap?.to(this.countdownBackground, {
+                alpha: 0.8,
+                duration: 0.5,
+                ease: "power2.inOut",
+                yoyo: true,
+                repeat: 1
+            });
+        }
     }
 
     /**
@@ -381,7 +819,7 @@ export class GameUI {
     }
 
     /**
-     * 📡 Update connection status display
+     * 📡 Update connection status display with casino elegance
      */
     public updateConnectionStatus(status: string): void {
         const statusEmoji = {
@@ -392,18 +830,104 @@ export class GameUI {
             'FAILED': '⚠️'
         }[status] || '❓';
 
+        // Elegant status text formatting
         this.connectionStatusText.text = `${statusEmoji} ${status}`;
         
-        // Update color based on status
+        // Update color with casino-appropriate styling
         this.connectionStatusText.style.fill = {
-            'CONNECTED': 0x00FF00,
-            'CONNECTING': 0xFFFF00,
-            'DISCONNECTED': 0xFF6666,
-            'ERROR': 0xFF0000,
-            'FAILED': 0xFFA500
-        }[status] || 0xFFFFFF;
+            'CONNECTED': '#00C851',    // Elegant green
+            'CONNECTING': '#FFD700',   // Luxurious gold (consistent with theme)
+            'DISCONNECTED': '#FF6B6B', // Soft red
+            'ERROR': '#FF4444',        // Error red
+            'FAILED': '#FFB347'        // Warm orange
+        }[status] || '#FFD700'; // Default to gold
+
+        // Add subtle glow effect for important status changes
+        if (status === 'CONNECTED' || status === 'ERROR') {
+            Globals.gsap?.to(this.connectionStatusText, {
+                alpha: 0.7,
+                duration: 0.3,
+                ease: "power2.inOut",
+                yoyo: true,
+                repeat: 1
+            });
+        }
 
         console.log(`📡 Connection status updated: ${status}`);
+    }
+
+    /**
+     * 🎰 Show "No Current Games" banner with elegant animation
+     */
+    public showNoGamesBanner(): void {
+        if (this.bannerVisible) return;
+
+        this.bannerVisible = true;
+        this.noGamesBanner.visible = true;
+
+        // Elegant entrance animation
+        this.noGamesBanner.alpha = 0;
+        this.noGamesBanner.scale.set(0.7);
+        
+        Globals.gsap?.to(this.noGamesBanner, {
+            alpha: 1,
+            duration: 0.6,
+            ease: "power3.out"
+        });
+
+        Globals.gsap?.to(this.noGamesBanner.scale, {
+            x: 1,
+            y: 1,
+            duration: 0.8,
+            ease: "elastic.out(1, 0.6)"
+        });
+
+        // Subtle floating animation (using position since we have pivot set)
+        const originalY = config.logicalHeight / 2;
+        Globals.gsap?.to(this.noGamesBanner.position, {
+            y: originalY - 10,
+            duration: 3,
+            ease: "power1.inOut",
+            yoyo: true,
+            repeat: -1
+        });
+
+        console.log("🎰 No Games banner shown");
+    }
+
+    /**
+     * 🎰 Hide "No Current Games" banner with smooth animation
+     */
+    public hideNoGamesBanner(): void {
+        if (!this.bannerVisible) return;
+
+        this.bannerVisible = false;
+
+        // Smooth exit animation
+        Globals.gsap?.to(this.noGamesBanner, {
+            alpha: 0,
+            duration: 0.4,
+            ease: "power2.in"
+        });
+
+        Globals.gsap?.to(this.noGamesBanner.scale, {
+            x: 0.8,
+            y: 0.8,
+            duration: 0.4,
+            ease: "power2.in",
+            onComplete: () => {
+                this.noGamesBanner.visible = false;
+                this.noGamesBanner.scale.set(1);
+                // Kill floating animation
+                Globals.gsap?.killTweensOf(this.noGamesBanner);
+                // Reset position (with proper pivot centering)
+                const centerX = config.logicalWidth / 2;
+                const centerY = config.logicalHeight / 2;
+                this.noGamesBanner.position.set(centerX, centerY);
+            }
+        });
+
+        console.log("🎰 No Games banner hidden");
     }
 
     /**
@@ -424,6 +948,10 @@ export class GameUI {
         return Math.ceil(this.countdownValue * (1 - progress));
     }
 
+    public isBannerVisible(): boolean {
+        return this.bannerVisible;
+    }
+
     /**
      * 🔄 Update method (called from main loop)
      */
@@ -437,11 +965,18 @@ export class GameUI {
      */
     public destroy(): void {
         this.stopCountdown();
+        this.hideNoGamesBanner();
+        
+        // Kill all GSAP animations
+        if (this.noGamesBanner) {
+            Globals.gsap?.killTweensOf(this.noGamesBanner);
+        }
         
         // Remove all UI elements
         if (this.timeDisplay) this.container.removeChild(this.timeDisplay);
         if (this.countdownOverlay) this.container.removeChild(this.countdownOverlay);
         if (this.connectionStatusText) this.container.removeChild(this.connectionStatusText);
+        if (this.noGamesBanner) this.container.removeChild(this.noGamesBanner);
         
         console.log("🎨 Game UI destroyed");
     }

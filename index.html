@@ -3,15 +3,33 @@
 <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- 🎯 LANDSCAPE MODE VIEWPORT CONFIGURATION -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-orientation" content="landscape" />
+    <meta name="screen-orientation" content="landscape" />
+    <meta name="orientation" content="landscape" />
+    
     <link rel="stylesheet" href="/style.css">
-    <title>PixiJS - Template</title>
+    <title>Roulette Game - Landscape Mode</title>
 </head>
 
 <body>
+    <!-- 📱 ORIENTATION WARNING OVERLAY -->
+    <div class="orientation-warning" id="orientationWarning">
+        <h1>🎯 Roulette Game</h1>
+        <div class="rotate-icon">📱➡️🖥️</div>
+        <p>Please rotate your device to landscape mode for the best gaming experience!</p>
+        <p style="font-size: 0.9rem; opacity: 0.8;">This game is optimized for landscape orientation</p>
+    </div>
+
     <div id="app">
         <div id="pixi-container"></div>
     </div>
+    
     <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

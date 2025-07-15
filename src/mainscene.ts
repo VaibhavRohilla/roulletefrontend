@@ -31,15 +31,24 @@ export class MainScene extends Scene {
     
     // Game state
     private isSpinning: boolean = false;
-    private isServerControlled: boolean = false;
+
 
     constructor() {
         super(false);
+        const rouletteBoard = new Sprite(Globals.resources.table);
+        rouletteBoard.anchor.set(0.5);
 
+        this.mainContainer.addChild(rouletteBoard);
+        rouletteBoard.scale.set(1);
+        rouletteBoard.position.set(window.innerWidth/2 + rouletteBoard.width/12, window.innerHeight/2+rouletteBoard.height/4);
+        rouletteBoard.alpha = 0.1;
+        // rouletteBoard.blendMode = 'multiply';
         this.initializeScene();
         this.initializeSystems();
         this.connectSystems();
-        
+        this.startCountdown(60, () => {
+            console.log("Countdown finished!");
+        });
         console.log("🎯 MainScene orchestrator initialized");
     }
 
@@ -137,7 +146,7 @@ export class MainScene extends Scene {
         console.log("🎰 Wheel continues constant rotation - ready for next spin immediately");
 
         // Start countdown for next round (manual mode only)
-        if (!this.isServerControlled) {
+        if (!Globals.isProd) {
             Globals.gsap?.delayedCall(1.5, () => {
                 console.log("🎰 Manual mode: Starting countdown for next round...");
                 this.gameUI.startCountdown(ROULETTE_CONFIG.autoCountdownDuration, () => {
@@ -155,13 +164,11 @@ export class MainScene extends Scene {
     }
 
     private handlePhaseChanged(phase: string, progress: number): void {
-        // console.log(`🎬 Ball physics phase: ${phase} (${(progress * 100).toFixed(1)}%)`);
+        console.log(`🎬 Ball physics phase: ${phase} (${(progress * 100).toFixed(1)}%)`);
         
         // You can add visual feedback here based on the phase
         // For example, update UI to show current animation phase
-        // if (this.gameUI) {
-        //     this.gameUI.updateAnimationPhase(phase, progress);
-        // }
+        
     }
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -178,14 +185,12 @@ export class MainScene extends Scene {
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
     private handleNetworkConnected(): void {
-        this.isServerControlled = true;
         this.gameUI.updateConnectionStatus('CONNECTED');
         this.updateGameState();
         console.log("🌐 Network connected - server mode activated");
     }
 
     private handleNetworkDisconnected(): void {
-        this.isServerControlled = false;
         this.gameUI.updateConnectionStatus('DISCONNECTED');
         this.updateGameState();
         console.log("🌐 Network disconnected - manual mode activated");
@@ -276,7 +281,7 @@ export class MainScene extends Scene {
     }
 
     private handleInputCountdownStart(seconds: number): void {
-        if (!this.isServerControlled) {
+        if (!Globals.isProd) {
             this.gameUI.startCountdown(seconds, () => {
                 console.log("Manual countdown completed!");
             });
@@ -285,7 +290,7 @@ export class MainScene extends Scene {
     }
 
     private handleInputCountdownStop(): void {
-        if (!this.isServerControlled) {
+        if (!Globals.isProd) {
             this.gameUI.stopCountdown();
             console.log("🎮 Input countdown stopped");
         }
@@ -331,7 +336,6 @@ export class MainScene extends Scene {
         this.inputController.updateGameState(
             this.isSpinning, 
             this.gameUI.isCountdownRunning(), 
-            this.isServerControlled
         );
     }
 
@@ -348,7 +352,7 @@ export class MainScene extends Scene {
     }
 
     public spin(targetNumber?: number): void {
-        if (this.isServerControlled) {
+        if (Globals.isProd) {
             console.log("🌐 Server mode: Manual spin ignored");
             return;
         }
@@ -361,7 +365,7 @@ export class MainScene extends Scene {
     }
 
     public startCountdown(seconds: number, onComplete?: () => void): void {
-        if (!this.isServerControlled) {
+        if (!Globals.isProd) {
             this.gameUI.startCountdown(seconds, onComplete);
         }
     }

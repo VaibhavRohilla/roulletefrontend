@@ -114,6 +114,20 @@
           "data": {
             "tags": {}
           }
+        },
+        {
+          "alias": [
+            "assets/table.png",
+            "assets/table",
+            "table.png",
+            "table"
+          ],
+          "src": [
+            "assets/table.png"
+          ],
+          "data": {
+            "tags": {}
+          }
         }
       ]
     }

@@ -1,7 +1,8 @@
-import { Container, Text, TextStyle } from 'pixi.js';
+import { Container, Text } from 'pixi.js';
 import LoadingManager, { LoadingProgress } from './LoadingManager';
 import LoadingBar from './LoadingBar';
 import gsap from 'gsap';
+import { TextLabel } from '../textlabel';
 
 export interface LoadingSceneOptions {
   manifestPath?: string;
@@ -39,14 +40,14 @@ export default class LoadingScene extends Container {
     this.loadingBar = new LoadingBar(options.loadingBarOptions);
     this.addChild(this.loadingBar);
     
-    // Create status text
-    const textStyle = new TextStyle({
-      fontFamily: 'Arial',
-      fontSize: 16,
-      fill: 0xFFFFFF,
-    });
+    // // Create status text
+    // const textStyle = new TextStyle({
+    //   fontFamily: 'Arial',
+    //   fontSize: 16,
+    //   fill: 0xFFFFFF,
+    // });
     
-    this.statusText = new Text('Initializing...', textStyle);
+    this.statusText = new TextLabel(0,0,0.5,'Initializing...', 0xFFFFFF);
     this.statusText.anchor.set(0.5, 0);
     this.addChild(this.statusText);
     

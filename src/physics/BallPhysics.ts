@@ -44,9 +44,9 @@ export class BallPhysics {
     // Physics parameters (Simplified for smooth performance)
     private readonly BOUNCE_DAMPING = 0.65;
     private readonly FRICTION_COEFFICIENT = 0.98;
-    private readonly ORBITAL_SPEED_INITIAL = 7; // radians/second (reduced for smoothness)
-    private readonly MIN_ALIGNMENT_DISTANCE = 18; // degrees (more forgiving)
-    private readonly PRECISE_DROP_DISTANCE = 5; // degrees (strict dropping threshold)
+    private readonly ORBITAL_SPEED_INITIAL = 6; // radians/second (reduced for smoothness)
+    // private readonly MIN_ALIGNMENT_DISTANCE = 18; // degrees (more forgiving)
+    // private readonly PRECISE_DROP_DISTANCE = 5; // degrees (strict dropping threshold)
 
     // Dynamic radius calculations
     private ballStartRadius: number = 0;

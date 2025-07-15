@@ -1,5 +1,6 @@
 import { Container } from "pixi.js";
 import { ROULETTE_CONFIG, GAME_CONSTANTS, UI_CONFIG } from "../config/GameConfig";
+import { Globals } from "../globals";
 
 export interface InputControllerEvents {
     onSpin: (targetNumber: number) => void;
@@ -15,7 +16,6 @@ export interface InputControllerEvents {
 export class InputController {
     private container: Container;
     private events: InputControllerEvents;
-    private isServerControlled: boolean = false;
     private isSpinning: boolean = false;
     private isCountdownActive: boolean = false;
 
@@ -42,7 +42,7 @@ export class InputController {
         // Click to spin
         this.container.eventMode = 'static';
         this.container.on('pointerdown', () => {
-            if (this.isServerControlled) {
+            if (Globals.isProd) {
                 console.log("🌐 Server mode: Click ignored - server controls spins");
                 return;
             }
@@ -83,7 +83,7 @@ export class InputController {
         event.preventDefault();
 
         // Check if server is controlling the game for spin commands
-        if (this.isServerControlled && this.isSpinCommand(key)) {
+        if (Globals.isProd && this.isSpinCommand(key)) {
             console.log("🌐 Server mode: Spin command ignored - server controls spins");
             return;
         }
@@ -150,7 +150,7 @@ export class InputController {
         }
 
         // Countdown commands (manual mode only)
-        if (!this.isServerControlled) {
+        if (!Globals.isProd) {
             this.processCountdownCommand(key);
         } else if (GAME_CONSTANTS.SPIN_COMMANDS.COUNTDOWN.includes(key as 'c' | 'x' | 't')) {
             console.log("🌐 Server mode: Manual countdown controls are disabled. Server controls timing.");
@@ -229,10 +229,9 @@ export class InputController {
     /**
      * 🔧 Update game state for input validation
      */
-    public updateGameState(isSpinning: boolean, isCountdownActive: boolean, isServerControlled: boolean): void {
+    public updateGameState(isSpinning: boolean, isCountdownActive: boolean): void {
         this.isSpinning = isSpinning;
         this.isCountdownActive = isCountdownActive;
-        this.isServerControlled = isServerControlled;
     }
 
     /**

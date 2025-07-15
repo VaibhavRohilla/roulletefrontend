@@ -14,6 +14,7 @@ export interface globalDataType {
   app: Application | undefined;
   soundResources: { [key: string]: Howl };
   gsap: typeof gsap | undefined;
+  isProd: boolean;
 }
 
 export const Globals: globalDataType = {
@@ -28,4 +29,5 @@ export const Globals: globalDataType = {
   app: undefined,
   soundResources: {},
   gsap: undefined,
+  isProd: false,
 };

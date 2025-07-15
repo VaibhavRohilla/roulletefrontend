@@ -1,3 +1,4 @@
+import { Globals } from './globals';
 import { Logger } from './Logger';
 
 export interface SpinMessage {
@@ -86,9 +87,8 @@ export class WebSocketService {
     }
 
     this.isConnecting = true;
-    const isProd = true;
    
-    const url = isProd ? 'wss://roulletebackend.onrender.com' : 'ws://localhost:3000';
+    const url = Globals.isProd ? 'wss://roulletebackend.onrender.com' : 'ws://localhost:3000';
     try {
       console.log(`🔌 Connecting to WebSocket: ${url}`);
       this.ws = new WebSocket(url);

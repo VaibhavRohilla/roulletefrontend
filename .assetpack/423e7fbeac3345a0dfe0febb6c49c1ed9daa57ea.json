@@ -6,8 +6,8 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1751998848258,
-                "duration": 1.1047079999999596,
+                "date": 1752613315247,
+                "duration": 5.792708000051789,
                 "success": true
             }
         },
@@ -18,8 +18,8 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1751998848258,
-                "duration": 1.7135829999999714,
+                "date": 1752613315248,
+                "duration": 5.576166999991983,
                 "success": true
             }
         },
@@ -191,6 +191,26 @@
         "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/public/assets/assets/Spin/top.png": {
             "isFolder": false,
             "transformParent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin/top.png",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {}
+        },
+        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/table.png": {
+            "isFolder": false,
+            "parent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {},
+            "stats": {
+                "date": 1752613315248,
+                "duration": 5.620292000006884,
+                "success": true
+            },
+            "hash": "PORbqQ"
+        },
+        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/public/assets/assets/table.png": {
+            "isFolder": false,
+            "transformParent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/table.png",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {}

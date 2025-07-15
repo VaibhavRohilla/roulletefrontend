@@ -69,6 +69,11 @@ export class BackgroundSprite extends PIXI.Sprite {
             height: height,
             scaleSize: scaleSize
         };
+        const Graphics = new PIXI.Graphics();
+        Graphics.rect(0, 0, this.width, this.height);
+        Graphics.fill(0x000000);
+        Graphics.alpha = 0.2;
+        this.addChild(Graphics);
 
         this.width = width;
         this.height = height;
