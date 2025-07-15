@@ -72,7 +72,7 @@ export class BallPhysics {
         this.centerX = center.x;
         this.centerY = center.y;
         
-        this.ballStartRadius = this.roulette.getBallStartRadius(25);
+        this.ballStartRadius = this.roulette.getBallStartRadius(this.ball.width*1.2);
         this.ballEndRadius = this.roulette.getBallEndRadius();
         
         console.log(`📏 Ball physics dimensions calculated:
