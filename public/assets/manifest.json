@@ -1,0 +1,121 @@
+{
+  "bundles": [
+    {
+      "name": "default",
+      "assets": [
+        {
+          "alias": [
+            "assets/GameBG.png",
+            "assets/GameBG",
+            "GameBG.png",
+            "GameBG"
+          ],
+          "src": [
+            "assets/GameBG.png"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
+            "assets/NumberCircle.png",
+            "assets/NumberCircle",
+            "NumberCircle.png",
+            "NumberCircle"
+          ],
+          "src": [
+            "assets/NumberCircle.png"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
+            "assets/Spin/RedBlackstrips.png",
+            "assets/Spin/RedBlackstrips",
+            "RedBlackstrips.png",
+            "RedBlackstrips"
+          ],
+          "src": [
+            "assets/Spin/RedBlackstrips.png"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
+            "assets/Spin/Roulette.png",
+            "assets/Spin/Roulette",
+            "Roulette.png",
+            "Roulette"
+          ],
+          "src": [
+            "assets/Spin/Roulette.png"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
+            "assets/Spin/ball.png",
+            "assets/Spin/ball",
+            "ball.png",
+            "ball"
+          ],
+          "src": [
+            "assets/Spin/ball.png"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
+            "assets/Spin/divider.png",
+            "assets/Spin/divider",
+            "divider.png",
+            "divider"
+          ],
+          "src": [
+            "assets/Spin/divider.png"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
+            "assets/Spin/inneroutline.png",
+            "assets/Spin/inneroutline",
+            "inneroutline.png",
+            "inneroutline"
+          ],
+          "src": [
+            "assets/Spin/inneroutline.png"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
+            "assets/Spin/top.png",
+            "assets/Spin/top",
+            "top.png",
+            "top"
+          ],
+          "src": [
+            "assets/Spin/top.png"
+          ],
+          "data": {
+            "tags": {}
+          }
+        }
+      ]
+    }
+  ]
+}
