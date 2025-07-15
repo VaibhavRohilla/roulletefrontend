@@ -63,8 +63,8 @@ export class MainScene extends Scene {
     private initializeSystems(): void {
         // Initialize ball physics system
         this.ballPhysics = new BallPhysics(this.ball, this.roulette, {
-            onSpinComplete: (winningIndex: number) => this.handleSpinComplete(winningIndex),
-            onBallLanded: (winningIndex: number) => this.handleBallLanded(winningIndex),
+            onSpinComplete: (winningNumber: number) => this.handleSpinComplete(winningNumber),
+            onBallLanded: (winningNumber: number) => this.handleBallLanded(winningNumber),
             onPhaseChanged: (phase: string, progress: number) => this.handlePhaseChanged(phase, progress)
         });
 
@@ -117,21 +117,24 @@ export class MainScene extends Scene {
     // 🎾 BALL PHYSICS EVENT HANDLERS
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    private handleSpinComplete(winningIndex: number): void {
+    private handleSpinComplete(winningNumber: number): void {
         this.isSpinning = false;
         this.updateGameState();
         
         // Check actual winner
         const actualWinner = this.roulette.getCurrentWinningNumber();
         
-        console.log(`🎉 Spin complete! Target: ${winningIndex}, Actual: ${actualWinner}`);
+        console.log(`🎉 Spin complete! Target: ${winningNumber}, Actual: ${actualWinner}`);
         
-        if (actualWinner === winningIndex) {
+        if (actualWinner === winningNumber) {
             console.log("✅ PERFECT LANDING!");
         } else {
-            console.warn(`❌ ALIGNMENT MISMATCH: Expected ${winningIndex}, Got ${actualWinner}`);
+            console.warn(`❌ ALIGNMENT MISMATCH: Expected ${winningNumber}, Got ${actualWinner}`);
             this.roulette.debugWheelState();
         }
+
+        // 🔧 FIX: No need to restart wheel - it never stops in real casino mode
+        console.log("🎰 Wheel continues constant rotation - ready for next spin immediately");
 
         // Start countdown for next round (manual mode only)
         if (!this.isServerControlled) {
@@ -146,12 +149,13 @@ export class MainScene extends Scene {
         }
     }
 
-    private handleBallLanded(winningIndex: number): void {
-        console.log(`🎾 Ball landed on number ${winningIndex}`);
+    private handleBallLanded(winningNumber: number): void {
+        console.log(`🎾 Ball landed on number ${winningNumber}!`);
+        // Future: Add visual effects, sounds, etc.
     }
 
     private handlePhaseChanged(phase: string, progress: number): void {
-        console.log(`🎬 Ball physics phase: ${phase} (${(progress * 100).toFixed(1)}%)`);
+        // console.log(`🎬 Ball physics phase: ${phase} (${(progress * 100).toFixed(1)}%)`);
         
         // You can add visual feedback here based on the phase
         // For example, update UI to show current animation phase
@@ -234,11 +238,22 @@ export class MainScene extends Scene {
     }
 
     private handleServerSpin(message: SpinMessage): void {
-        console.log(`🎰 Server spin received! Target: ${message.index}`);
+        console.log(`🎰 Server spin received! Target INDEX: ${message.index}`);
         
-        // Stop countdown and execute spin
+        // 🔧 FIX: Convert server index to actual number
+        const rouletteNumbers = this.roulette.getRouletteNumbers();
+        const targetNumber = rouletteNumbers[message.index];
+        
+        if (targetNumber === undefined) {
+            console.error(`❌ Invalid server index: ${message.index}. Valid range: 0-${rouletteNumbers.length - 1}`);
+            return;
+        }
+        
+        console.log(`🎯 Converted server index ${message.index} to target number ${targetNumber}`);
+        
+        // Stop countdown and execute spin with the actual number
         this.gameUI.stopCountdown();
-        this.startSpin(message.index);
+        this.startSpin(targetNumber);
     }
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -282,18 +297,24 @@ export class MainScene extends Scene {
 
     /**
      * 🎯 Start roulette spin
+     * @param winningNumber The target roulette number (0-36) where ball should land
      */
-    private startSpin(winningIndex: number): void {
+    private startSpin(winningNumber: number): void {
         if (!this.canSpin()) {
             console.warn("🎯 Cannot start spin - game not ready");
             return;
         }
 
-        console.log(`🎯 Starting spin to number ${winningIndex}`);
+        console.log(`🎯 Starting spin to NUMBER ${winningNumber} (not index!)`);
         this.isSpinning = true;
         this.updateGameState();
         
-        this.ballPhysics.startSpin(winningIndex);
+        // 🔧 FIX: No wheel synchronization - wheel rotates constantly like a real casino
+        // Ball physics handles all timing to land when target number passes top position
+        console.log(`🎰 REAL CASINO MODE: Wheel continues constant rotation, ball must time itself perfectly`);
+        
+        // Start ball physics - ball is responsible for timing its landing
+        this.ballPhysics.startSpin(winningNumber);
     }
 
     /**
@@ -364,6 +385,9 @@ export class MainScene extends Scene {
     public update(dt: number): void {
         // Update UI system
         this.gameUI.update(dt);
+        
+        // Update ball physics (ensures settled ball moves with wheel)
+        this.ballPhysics.update(dt);
     }
 
     public resize(): void {

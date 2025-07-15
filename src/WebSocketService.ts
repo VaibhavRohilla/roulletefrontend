@@ -51,8 +51,8 @@ export class WebSocketService {
 
   private constructor(config: Partial<WebSocketConfig> = {}) {
     this.config = {
-      host: 'https://roulletetele.onrender.com/',
-      port: 3001,
+      host: 'roulletebackend.onrender.com',
+      port: 0, // or omit it,
       autoReconnect: true,
       reconnectDelay: 3000,
       maxReconnectAttempts: 5,
@@ -86,8 +86,9 @@ export class WebSocketService {
     }
 
     this.isConnecting = true;
-    const url = `ws://${this.config.host}:${this.config.port}`;
-    
+    const isProd = true;
+   
+    const url = isProd ? 'wss://roulletebackend.onrender.com' : 'ws://localhost:3000';
     try {
       console.log(`🔌 Connecting to WebSocket: ${url}`);
       this.ws = new WebSocket(url);

@@ -5,7 +5,7 @@ import { ROULETTE_CONFIG } from "../config/GameConfig";
 
 /**
  * 🔄 Wheel Synchronizer
- * Manages constant wheel rotation that never stops
+ * Manages constant wheel rotation that never stops - like a real casino
  */
 export class WheelSynchronizer {
     private roulette: RoulleteBoard;
@@ -14,11 +14,12 @@ export class WheelSynchronizer {
 
     constructor(roulette: RoulleteBoard) {
         this.roulette = roulette;
-        console.log("🔄 Wheel synchronizer initialized");
+        console.log("🔄 Wheel synchronizer initialized - constant speed mode");
     }
 
     /**
      * 🔄 Start constant wheel rotation that never stops
+     * Just like a real casino roulette wheel
      */
     public startConstantRotation(): void {
         if (this.isRunning) {
@@ -26,11 +27,11 @@ export class WheelSynchronizer {
             return;
         }
 
-        console.log(`🔄 Starting constant wheel rotation at ${ROULETTE_CONFIG.constantWheelSpeed} rotations per second`);
+        console.log(`🔄 Starting constant wheel rotation at ${ROULETTE_CONFIG.constantWheelSpeed} rotations per second - NEVER STOPS`);
         
         this.isRunning = true;
         
-        // Start infinite rotation
+        // Start infinite rotation at constant speed
         this.constantWheelTween = Globals.gsap?.to(this.roulette, {
             rotation: "+=6.283185307179586", // Add 2π radians (one full rotation)
             duration: 1 / ROULETTE_CONFIG.constantWheelSpeed, // Duration for one rotation
@@ -42,7 +43,7 @@ export class WheelSynchronizer {
             }
         });
 
-        console.log("🔄 Constant wheel rotation started successfully");
+        console.log("🔄 Constant wheel rotation started - wheel will NEVER stop like a real casino");
     }
 
     /**
@@ -51,8 +52,8 @@ export class WheelSynchronizer {
     public pauseRotation(): void {
         if (this.constantWheelTween) {
             this.constantWheelTween.pause();
-            console.log("⏸️ Wheel rotation paused");
         }
+        console.log("⏸️ Wheel rotation paused");
     }
 
     /**
@@ -61,8 +62,8 @@ export class WheelSynchronizer {
     public resumeRotation(): void {
         if (this.constantWheelTween) {
             this.constantWheelTween.resume();
-            console.log("▶️ Wheel rotation resumed");
         }
+        console.log("▶️ Wheel rotation resumed");
     }
 
     /**
@@ -72,9 +73,9 @@ export class WheelSynchronizer {
         if (this.constantWheelTween) {
             this.constantWheelTween.kill();
             this.constantWheelTween = null;
-            this.isRunning = false;
-            console.log("🛑 Constant wheel rotation stopped");
         }
+        this.isRunning = false;
+        console.log("🛑 Wheel rotation stopped completely");
     }
 
     /**

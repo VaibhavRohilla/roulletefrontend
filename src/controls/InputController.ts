@@ -63,9 +63,9 @@ export class InputController {
      * ⌨️ Setup keyboard controls
      */
     private setupKeyboardControls(): void {
-        document.addEventListener('keydown', (event) => {
-            this.handleKeyPress(event);
-        });
+        // document.addEventListener('keydown', (event) => {
+        //     this.handleKeyPress(event);
+        // });
 
         console.log("⌨️ Keyboard controls configured");
     }

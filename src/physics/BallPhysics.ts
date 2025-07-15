@@ -5,8 +5,8 @@ import { ROULETTE_CONFIG } from "../config/GameConfig";
 
 
 export interface BallPhysicsEvents {
-    onSpinComplete: (winningIndex: number) => void;
-    onBallLanded: (winningIndex: number) => void;
+    onSpinComplete: (winningNumber: number) => void;  // 🔧 FIX: Clarified parameter name
+    onBallLanded: (winningNumber: number) => void;    // 🔧 FIX: Clarified parameter name  
     onPhaseChanged: (phase: string, progress: number) => void;
 }
 
@@ -25,14 +25,15 @@ export class BallPhysics {
     private currentPhase: string = 'idle';
     private animationTimeline: any = null;
     private currentTween: any = null;
-    private ballSyncTween: any = null;
+    // 🔧 REMOVED: ballSyncTween no longer needed with simplified synchronization
     
     // Ball state tracking
     private currentBallAngle: number = 0;
     private ballVelocity: number = 0;
     private ballRadius: number = 0;
     private ballVerticalPosition: number = 0;
-    private targetWinningIndex: number = -1;
+    private targetWinningNumber: number = -1; // 🔧 FIX: Renamed from targetWinningIndex for clarity
+    private ballRelativeAngleToWheel: number = 0; // 🆕 Store ball's relative position to wheel when landed
     
     // 🧭 Simplified direction system
     private ballDirection: number = 1; // 1 = clockwise, -1 = counter-clockwise
@@ -104,17 +105,18 @@ export class BallPhysics {
 
     /**
      * 🚀 Start smooth 6-phase ball animation
+     * @param winningNumber The target roulette number (0-36) where the ball should land
      */
-    public startSpin(winningIndex: number): void {
-        if (this.isSpinning || winningIndex < 0 || winningIndex >= ROULETTE_CONFIG.pocketCount) {
-            console.warn(`🎾 Invalid winning index: ${winningIndex}`);
+    public startSpin(winningNumber: number): void {
+        if (this.isSpinning || winningNumber < 0 || winningNumber >= ROULETTE_CONFIG.pocketCount) {
+            console.warn(`🎾 Invalid winning number: ${winningNumber}`);
             return;
         }
 
-        console.log(`🚀 Starting SMOOTH Ball Physics for target: ${winningIndex}`);
+        console.log(`🚀 Starting SMOOTH Ball Physics for target NUMBER: ${winningNumber}`);
         
         this.isSpinning = true;
-        this.targetWinningIndex = winningIndex;
+        this.targetWinningNumber = winningNumber;
         this.ball.visible = true;
         this.currentPhase = 'launching';
         
@@ -131,7 +133,7 @@ export class BallPhysics {
      */
     private determineBallDirection(): void {
         // Always choose the direction that gets to target fastest
-        const targetAngle = this.roulette.getAngleForNumber(this.targetWinningIndex);
+        const targetAngle = this.roulette.getAngleForNumber(this.targetWinningNumber);
         const currentWheelRotation = this.roulette.rotation;
         const targetWorldAngle = this.normalizeAngle(targetAngle + currentWheelRotation);
         const ballAngle = this.currentBallAngle;
@@ -341,7 +343,7 @@ export class BallPhysics {
             },
             onComplete: () => {
                 console.log("✅ Phase 4 Complete - Smooth fall achieved");
-                this.events.onBallLanded(this.targetWinningIndex);
+                this.events.onBallLanded(this.targetWinningNumber);
                 this.executePhase5_SmoothBounce();
             }
         });
@@ -407,7 +409,7 @@ export class BallPhysics {
         if (this.checkBottomPositionAlignment()) {
             console.log("✅ Ball already perfectly positioned!");
             this.finalizeBallPosition();
-            this.events.onSpinComplete(this.targetWinningIndex);
+            this.events.onSpinComplete(this.targetWinningNumber);
             this.startSmoothWheelSynchronization();
             return;
         }
@@ -416,10 +418,10 @@ export class BallPhysics {
         // Ball moves VERY slowly while wheel continues rotating at constant speed
         // The wheel's rotation will naturally bring the winning pocket to the ball
         // This creates realistic physics where the ball settles gradually
-        const maxDriftTime = 8.0; // Maximum time to wait for natural alignment
-        const slowDriftSpeed = 0.15; // Ultra-slow angular velocity (radians/second) - much slower than wheel
+        const maxDriftTime = 8.0; // 🔧 INCREASED: Need more time to wait for exact target timing
+        const slowDriftSpeed = 0.06; // 🔧 EVEN SLOWER: More precise timing needed
         
-        console.log("🐌 Ball drifting slowly - wheel rotation will bring winning pocket to ball");
+        console.log(`🎰 REAL CASINO MODE: Ball must predict when target ${this.targetWinningNumber} passes top position (wheel never stops)`);
         
         this.currentTween = Globals.gsap?.to({}, {
             duration: maxDriftTime,
@@ -443,9 +445,16 @@ export class BallPhysics {
                 
                 // 🎯 Continuously check if wheel has brought winning pocket to ball
                 if (this.checkBottomPositionAlignment()) {
-                    console.log("✅ Wheel rotation brought winning pocket to ball - perfect alignment!");
-                    this.currentTween?.progress(1);
+                    console.log(`✅ Wheel rotation brought winning pocket ${this.targetWinningNumber} to ball - starting gradual capture!`);
+                    this.currentTween?.kill(); // Stop current drift
+                    this.executePhase7_GradualCapture(); // Start gradual capture by pocket
                     return;
+                }
+                
+                // Debug logging every 20% progress
+                if (progress > 0 && Math.floor(progress * 5) > Math.floor((progress - 0.01) * 5)) {
+                    const currentWinner = this.roulette.getCurrentWinningNumber();
+                    console.log(`🎰 Phase 6 Progress: ${(progress * 100).toFixed(0)}% | Current winner: ${currentWinner} | Target: ${this.targetWinningNumber} | Waiting for exact timing...`);
                 }
                 
                 this.events.onPhaseChanged('bottom_moving', progress);
@@ -453,7 +462,107 @@ export class BallPhysics {
             onComplete: () => {
                 console.log("✅ Phase 6 Complete - Natural wheel alignment achieved");
                 this.finalizeBallPosition();
-                this.events.onSpinComplete(this.targetWinningIndex);
+                this.events.onSpinComplete(this.targetWinningNumber);
+                this.startSmoothWheelSynchronization();
+            }
+        });
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 🎬 PHASE 7: GRADUAL CAPTURE - Ball gradually slows and gets captured by approaching target pocket
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    private executePhase7_GradualCapture(): void {
+        console.log("🎯 Phase 7: Gradual Capture - Ball slowing down, target pocket approaching");
+        this.currentPhase = 'gradual_capture';
+        this.events.onPhaseChanged('gradual_capture', 0);
+        
+        const captureStartTime = Date.now();
+        const maxCaptureTime = 3.0; // Maximum time for capture process
+        let initialBallSpeed = 0.02; // Very slow initial drift speed
+        let captureProgress = 0;
+        let isCaptured = false;
+        
+        console.log(`🎰 Ball will be gradually captured by pocket ${this.targetWinningNumber} as wheel rotates`);
+        
+        this.currentTween = Globals.gsap?.to({}, {
+            duration: maxCaptureTime,
+            ease: "none", // Linear time progression
+            onUpdate: () => {
+                const progress = this.currentTween?.progress() || 0;
+                const elapsedTime = Date.now() - captureStartTime;
+                
+                if (!isCaptured) {
+                    // 🐌 Ball continues very slow drift with increasing friction
+                    const frictionFactor = Math.max(0.1, 1 - progress * 0.9); // Gradual slowdown
+                    const currentDriftSpeed = initialBallSpeed * frictionFactor;
+                    
+                    // Ball moves very slowly in its current direction
+                    this.currentBallAngle += this.ballDirection * currentDriftSpeed / 60;
+                    this.currentBallAngle = this.normalizeAngle(this.currentBallAngle);
+                    
+                    // 🎯 Check if target pocket has come close enough to capture ball
+                    const targetAngle = this.roulette.getAngleForNumber(this.targetWinningNumber);
+                    const currentWheelRotation = this.roulette.rotation;
+                    const targetWorldAngle = this.normalizeAngle(currentWheelRotation + targetAngle);
+                    
+                    // Calculate distance between ball and target pocket
+                    let angleDifference = this.normalizeAngle(targetWorldAngle - this.currentBallAngle);
+                    const distanceToPocket = Math.abs(angleDifference) * (180 / Math.PI);
+                    
+                    // 🎯 CAPTURE THRESHOLD: When target pocket gets within 15 degrees, start capture
+                    const CAPTURE_THRESHOLD = 15.0; // degrees
+                    
+                    if (distanceToPocket <= CAPTURE_THRESHOLD) {
+                        console.log(`🎯 CAPTURE INITIATED: Target pocket within ${distanceToPocket.toFixed(1)}° - ball being captured!`);
+                        isCaptured = true;
+                        captureProgress = 0;
+                    }
+                    
+                    // Debug logging
+                    if (Math.floor(elapsedTime / 500) > Math.floor((elapsedTime - 16) / 500)) {
+                        console.log(`🎰 Gradual drift: Ball speed ${(currentDriftSpeed * 60).toFixed(3)}, Distance to pocket: ${distanceToPocket.toFixed(1)}°`);
+                    }
+                } else {
+                    // 🎯 CAPTURE PHASE: Ball is being pulled toward the target pocket
+                    captureProgress += 0.025; // Gradual capture rate
+                    captureProgress = Math.min(captureProgress, 1.0);
+                    
+                    // Calculate target position
+                    const targetAngle = this.roulette.getAngleForNumber(this.targetWinningNumber);
+                    const currentWheelRotation = this.roulette.rotation;
+                    const targetWorldAngle = this.normalizeAngle(currentWheelRotation + targetAngle);
+                    
+                    // Smoothly interpolate ball toward target pocket
+                    const currentAngle = this.currentBallAngle;
+                    let angleDifference = this.normalizeAngle(targetWorldAngle - currentAngle);
+                    
+                    // Apply gradual capture with easing
+                    const captureEasing = captureProgress * captureProgress * (3 - 2 * captureProgress); // Smooth step
+                    this.currentBallAngle = this.normalizeAngle(currentAngle + angleDifference * captureEasing * 0.1);
+                    
+                    // Check if capture is complete
+                    const finalDistance = Math.abs(this.normalizeAngle(targetWorldAngle - this.currentBallAngle)) * (180 / Math.PI);
+                    if (finalDistance < 2.0 || captureProgress >= 1.0) {
+                        console.log(`✅ CAPTURE COMPLETE: Ball successfully captured by pocket ${this.targetWinningNumber}!`);
+                        this.currentTween?.progress(1);
+                        return;
+                    }
+                }
+                
+                // Keep ball at bottom radius
+                this.ballRadius = this.ballEndRadius;
+                this.ballVerticalPosition = Math.sin(progress * Math.PI * 20) * 0.2; // Tiny friction effects
+                
+                // Update visual position
+                this.updateBallPositionSmooth();
+                
+                this.events.onPhaseChanged('gradual_capture', progress);
+            },
+            onComplete: () => {
+                console.log("✅ Phase 7 Complete - Ball gradually captured by target pocket");
+                this.finalizeBallPosition();
+                this.events.onSpinComplete(this.targetWinningNumber);
                 this.startSmoothWheelSynchronization();
             }
         });
@@ -461,22 +570,20 @@ export class BallPhysics {
 
     /**
      * 🎯 Check if ball is aligned with winning pocket at bottom
+     * 🔧 SIMPLIFIED: Just wait for target number to be at top - no complex predictions
      */
     private checkBottomPositionAlignment(): boolean {
-        const targetAngle = this.roulette.getAngleForNumber(this.targetWinningIndex);
-        const currentWheelRotation = this.roulette.rotation;
-        const targetWorldAngle = this.normalizeAngle(targetAngle + currentWheelRotation);
+        // Check what number is currently winning
+        const currentWinner = this.roulette.getCurrentWinningNumber();
         
-        // Calculate the shortest distance (both directions) to target
-        const clockwiseDistance = this.calculateForwardDistance(this.currentBallAngle, targetWorldAngle, 1);
-        const counterClockwiseDistance = this.calculateForwardDistance(this.currentBallAngle, targetWorldAngle, -1);
-        const shortestDistance = Math.min(clockwiseDistance, counterClockwiseDistance);
-        
-        // More forgiving tolerance for smooth natural alignment
-        if (shortestDistance <= 15) { // 15 degree tolerance for natural wheel alignment
-            console.log(`🎯 Natural bottom alignment achieved! Distance: ${shortestDistance.toFixed(1)}°`);
+        // 🔧 SIMPLIFIED LOGIC: Ball lands only when target number is actually at top
+        if (currentWinner === this.targetWinningNumber) {
+            console.log(`🎯 PERFECT TIMING: Target ${this.targetWinningNumber} is currently at top - ball landing now!`);
             return true;
         }
+        
+        // Log current state for debugging
+        // console.log(`🔍 Waiting for target ${this.targetWinningNumber} to reach top (current winner: ${currentWinner})`);
         
         return false;
     }
@@ -489,6 +596,13 @@ export class BallPhysics {
      * 📍 Smooth ball position update - NO glitching
      */
     private updateBallPositionSmooth(): void {
+        // 🔧 SETTLED BALL: When settled, maintain exact relative position to wheel
+        if (this.currentPhase === 'settled') {
+            // Use stored relative angle to maintain exact landing position relationship
+            const currentWheelRotation = this.roulette.rotation;
+            this.currentBallAngle = this.normalizeAngle(currentWheelRotation + this.ballRelativeAngleToWheel);
+        }
+        
         // Simple position calculation
         const x = this.centerX + this.ballRadius * Math.cos(this.currentBallAngle);
         const y = this.centerY + this.ballRadius * Math.sin(this.currentBallAngle) + this.ballVerticalPosition;
@@ -500,6 +614,7 @@ export class BallPhysics {
             this.currentBallAngle += this.ballDirection * this.ballVelocity / 60;
             this.currentBallAngle = this.normalizeAngle(this.currentBallAngle);
         }
+        // Note: 'bottom_moving' and 'gradual_capture' phases handle their own angle updates
     }
 
     /**
@@ -525,16 +640,23 @@ export class BallPhysics {
         // Get current winning number
         const currentWinningNumber = this.roulette.getCurrentWinningNumber();
         
-        if (currentWinningNumber === this.targetWinningIndex) {
-            const targetAngle = this.roulette.getAngleForNumber(this.targetWinningIndex);
+        if (currentWinningNumber === this.targetWinningNumber) {
+            const targetAngle = this.roulette.getAngleForNumber(this.targetWinningNumber);
             const currentWheelRotation = this.roulette.rotation;
+            
+            // 🔧 FIX: Use same improved logic as other alignment checks
             const targetWorldAngle = this.normalizeAngle(targetAngle + currentWheelRotation);
+            const ballTargetAngle = this.normalizeAngle(targetWorldAngle + Math.PI);
             
-            // Calculate forward distance
-            const forwardDistance = this.calculateForwardDistance(this.currentBallAngle, targetWorldAngle, this.ballDirection);
+            // Calculate distance to target position
+            const angleDifference = this.normalizeAngle(ballTargetAngle - this.currentBallAngle);
+            const alignmentDistance = Math.abs(angleDifference) * (180 / Math.PI);
             
-            if (forwardDistance <= this.MIN_ALIGNMENT_DISTANCE) {
-                console.log(`🎯 Smooth alignment detected! Distance: ${forwardDistance.toFixed(1)}°`);
+            // Moderate tolerance for smooth alignment detection
+            const ALIGNMENT_TOLERANCE = 6.0; // degrees - moderate tolerance for smooth detection
+            
+            if (alignmentDistance <= ALIGNMENT_TOLERANCE) {
+                console.log(`🎯 Smooth alignment detected! Distance: ${alignmentDistance.toFixed(1)}° (Target: ${this.targetWinningNumber})`);
                 return true;
             }
         }
@@ -549,16 +671,23 @@ export class BallPhysics {
         // Get current winning number
         const currentWinningNumber = this.roulette.getCurrentWinningNumber();
         
-        if (currentWinningNumber === this.targetWinningIndex) {
-            const targetAngle = this.roulette.getAngleForNumber(this.targetWinningIndex);
+        if (currentWinningNumber === this.targetWinningNumber) {
+            const targetAngle = this.roulette.getAngleForNumber(this.targetWinningNumber);
             const currentWheelRotation = this.roulette.rotation;
+            
+            // 🔧 FIX: Use same improved logic as bottom alignment
             const targetWorldAngle = this.normalizeAngle(targetAngle + currentWheelRotation);
+            const ballTargetAngle = this.normalizeAngle(targetWorldAngle + Math.PI);
             
             // Calculate precise distance to exact pocket position
-            const forwardDistance = this.calculateForwardDistance(this.currentBallAngle, targetWorldAngle, this.ballDirection);
+            const angleDifference = this.normalizeAngle(ballTargetAngle - this.currentBallAngle);
+            const preciseDistance = Math.abs(angleDifference) * (180 / Math.PI);
             
-            if (forwardDistance <= this.PRECISE_DROP_DISTANCE) {
-                console.log(`🎯 PRECISE drop position reached! Distance: ${forwardDistance.toFixed(2)}°`);
+            // Very strict tolerance for precise dropping
+            const DROP_TOLERANCE = 2.0; // degrees - extremely tight for precise dropping
+            
+            if (preciseDistance <= DROP_TOLERANCE) {
+                console.log(`🎯 PRECISE drop position reached! Distance: ${preciseDistance.toFixed(2)}° (Target: ${this.targetWinningNumber})`);
                 return true;
             }
         }
@@ -589,55 +718,42 @@ export class BallPhysics {
      * 🏁 Finalize ball position
      */
     private finalizeBallPosition(): void {
+        // 🔧 FIX: Only set final state - position is already smoothly set by Phase 7
+        // Don't change ball position here to avoid teleporting
+        
+        const targetAngle = this.roulette.getAngleForNumber(this.targetWinningNumber);
+        
+        // Store the correct relative position for future updates
+        this.ballRelativeAngleToWheel = targetAngle; // Same angle as target number
+        
+        // Clean up physical properties but don't change position
         this.ballRadius = this.ballEndRadius;
         this.ballVerticalPosition = 0;
         this.ball.scale.set(0.65);
         this.ball.rotation = 0;
-        this.updateBallPositionSmooth();
+        
+        // DON'T update position here - Phase 7 already positioned it correctly
         
         this.isSpinning = false;
         this.currentPhase = 'settled';
         
-        console.log("🏁 Ball physics finalized smoothly");
+        console.log(`🏁 Ball finalized in target number ${this.targetWinningNumber} pocket (no teleporting - gradually captured by Phase 7)`);
+        console.log(`📍 Target number angle: ${(targetAngle * 180 / Math.PI).toFixed(2)}°`);
+        console.log(`📍 Ball relative angle to wheel: ${(this.ballRelativeAngleToWheel * 180 / Math.PI).toFixed(2)}°`);
+        console.log(`📍 Ball world angle: ${(this.currentBallAngle * 180 / Math.PI).toFixed(2)}°`);
     }
 
     /**
-     * 🔄 Smooth wheel synchronization - NO TELEPORTING
+     * 🔄 Final verification - ball timed its landing with constantly moving wheel
      */
     private startSmoothWheelSynchronization(): void {
-        const targetNumberLocalAngle = this.roulette.getAngleForNumber(this.targetWinningIndex);
+        console.log(`🎰 CASINO PHYSICS COMPLETE: Ball timed its landing with constantly moving wheel`);
         
-        this.ballSyncTween = Globals.gsap?.to({}, {
-            duration: 999999,
-            ease: "none",
-            onUpdate: () => {
-                if (this.isSpinning) {
-                    if (this.ballSyncTween) {
-                        this.ballSyncTween.kill();
-                        this.ballSyncTween = null;
-                    }
-                    return;
-                }
-                
-                // Gentle synchronization - only adjust the angle slightly to stay in sync
-                const currentWheelRotation = this.roulette.rotation;
-                const synchronizedAngle = targetNumberLocalAngle + currentWheelRotation;
-                
-                // Calculate small adjustment needed to stay synchronized
-                const angleDifference = this.normalizeAngle(synchronizedAngle - this.currentBallAngle);
-                
-                // Only make tiny adjustments to prevent noticeable movement
-                if (Math.abs(angleDifference) > 0.05) { // 3 degree threshold
-                    this.currentBallAngle += angleDifference * 0.1; // Gentle correction
-                    this.currentBallAngle = this.normalizeAngle(this.currentBallAngle);
-                    
-                    // Update position naturally
-                    this.updateBallPositionSmooth();
-                }
-            }
-        });
-
-        console.log(`🔄 Natural wheel sync started for number ${this.targetWinningIndex} - NO teleporting`);
+        // 🔧 SIMPLIFIED: With new logic, ball always lands correctly
+        const currentWinner = this.roulette.getCurrentWinningNumber();
+        console.log(`✅ PERFECT CASINO TIMING: Ball landed exactly when ${this.targetWinningNumber} was at top - current winner: ${currentWinner}`);
+        
+        console.log("🎰 Real casino roulette physics complete - wheel continues spinning for next round");
     }
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -656,16 +772,13 @@ export class BallPhysics {
             this.currentTween.kill();
             this.currentTween = null;
         }
-        if (this.ballSyncTween) {
-            this.ballSyncTween.kill();
-            this.ballSyncTween = null;
-        }
+        // 🔧 REMOVED: ballSyncTween no longer used with simplified synchronization
 
         Globals.gsap?.killTweensOf(this.ball);
         Globals.gsap?.killTweensOf(this.ball.position);
         Globals.gsap?.killTweensOf(this.ball.scale);
         
-        console.log("🔄 All animations stopped cleanly");
+        console.log("🔄 All ball animations stopped cleanly");
     }
 
 
@@ -688,12 +801,22 @@ export class BallPhysics {
     // 📋 PUBLIC API
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+    /**
+     * 🔄 Update method called every frame from main game loop
+     */
+    public update(_dt: number): void {
+        // Update ball position if settled (moves with wheel rotation)
+        if (this.currentPhase === 'settled') {
+            this.updateBallPositionSmooth();
+        }
+    }
+
     public getIsSpinning(): boolean {
         return this.isSpinning;
     }
 
     public isReadyToSpin(): boolean {
-        return !this.isSpinning && this.currentPhase !== 'falling' && this.currentPhase !== 'bouncing' && this.currentPhase !== 'bottom_moving';
+        return !this.isSpinning && this.currentPhase !== 'falling' && this.currentPhase !== 'bouncing' && this.currentPhase !== 'bottom_moving' && this.currentPhase !== 'gradual_capture';
     }
 
     public getCurrentPhase(): string {

@@ -207,7 +207,12 @@ export class RoulleteBoard extends Container {
         // The top position is at -π/2 (270°)
         const topPosition = -Math.PI / 2;
         
-        // ✅ FIXED COORDINATE SYSTEM:
+        // // 🔧 DEBUG: Add detailed logging to understand coordinate system
+        // console.log(`🔍 WHEEL WINNING NUMBER DEBUG:
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 🔄 Current Wheel Rotation: ${(currentRotation * 180 / Math.PI).toFixed(2)}°
+        // 🎯 Top Position (winning): ${(topPosition * 180 / Math.PI).toFixed(2)}°`);
+        
         // Each number has a local angle. After wheel rotation R, 
         // that number appears at (localAngle + R) in world space.
         // To find what's at the top, we need: localAngle + R = topPosition
@@ -218,6 +223,8 @@ export class RoulleteBoard extends Container {
         let normalizedAngle = requiredLocalAngle;
         while (normalizedAngle < -Math.PI) normalizedAngle += 2 * Math.PI;
         while (normalizedAngle > Math.PI) normalizedAngle -= 2 * Math.PI;
+        
+        // console.log(`📐 Required Local Angle: ${(normalizedAngle * 180 / Math.PI).toFixed(2)}°`);
         
         // Find the number whose local angle is closest to the required angle
         let closestIndex = 0;
@@ -239,22 +246,20 @@ export class RoulleteBoard extends Container {
         }
         
         const winningNumber = this.rouletteNumbers[closestIndex];
-        const winningAngle = this.getAngleForIndex(closestIndex);
+        // const winningAngle = this.getAngleForIndex(closestIndex);
         
         // Verify: where does this number actually appear after rotation?
-        const actualWorldAngle = winningAngle + currentRotation;
-        const worldAngleDegrees = (actualWorldAngle * 180 / Math.PI) % 360;
-        const topPositionDegrees = (topPosition * 180 / Math.PI + 360) % 360;
+        // const actualWorldAngle = winningAngle + currentRotation;
+        // const worldAngleDegrees = (actualWorldAngle * 180 / Math.PI) % 360;
+        // const topPositionDegrees = (topPosition * 180 / Math.PI + 360) % 360;
         
-        console.log(`🔍 FIXED Winning Number Debug:
-        Wheel Rotation: ${(currentRotation * 180 / Math.PI).toFixed(2)}°
-        Required Local Angle: ${(normalizedAngle * 180 / Math.PI).toFixed(2)}°
-        Winning Number: ${winningNumber} (index ${closestIndex})
-        Number's Local Angle: ${(winningAngle * 180 / Math.PI).toFixed(2)}°
-        Number's World Position: ${worldAngleDegrees.toFixed(2)}°
-        Target Position (Top): ${topPositionDegrees.toFixed(2)}°
-        Position Error: ${Math.abs(worldAngleDegrees - topPositionDegrees).toFixed(2)}°
-        Angular Precision: ±${(minDifference * 180 / Math.PI).toFixed(2)}°`);
+        // console.log(`🏆 Closest Number: ${winningNumber} (index ${closestIndex})
+        // 📐 Number's Local Angle: ${(winningAngle * 180 / Math.PI).toFixed(2)}°
+        // 🌍 Number's World Position: ${worldAngleDegrees.toFixed(2)}°
+        // 🎯 Target Position (Top): ${topPositionDegrees.toFixed(2)}°
+        // 📏 Position Error: ${Math.abs(worldAngleDegrees - topPositionDegrees).toFixed(2)}°
+        // 🎱 Angular Precision: ±${(minDifference * 180 / Math.PI).toFixed(2)}°
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
         
         return winningNumber;
     }
