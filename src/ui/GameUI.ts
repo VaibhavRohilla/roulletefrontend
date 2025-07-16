@@ -38,7 +38,7 @@ export class GameUI {
 
     constructor(container: Container, events: GameUIEvents) {
         this.container = container;
-        this.events = events;
+    this.events = events;
         
         this.initializeUI();
         console.log("🎨 Game UI initialized");

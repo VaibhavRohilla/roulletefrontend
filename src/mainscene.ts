@@ -2,7 +2,6 @@ import { Sprite } from "pixi.js";
 import { Globals } from "./globals";
 import { Scene } from "./scene";
 import { RoulleteBoard } from "./roullete";
-import { SpinMessage, RoundStartMessage, GameStateMessage } from "./WebSocketService";
 
 // Import modular components
 import { BallPhysics } from "./physics/BallPhysics";
@@ -46,9 +45,10 @@ export class MainScene extends Scene {
         this.initializeScene();
         this.initializeSystems();
         this.connectSystems();
-        this.startCountdown(60, () => {
-            console.log("Countdown finished!");
-        });
+        
+        // Show "No Games" banner by default until connected to backend
+        // this.gameUI.showNoGamesBanner();
+        
         console.log("🎯 MainScene orchestrator initialized");
     }
 
@@ -87,9 +87,10 @@ export class MainScene extends Scene {
             onConnected: () => this.handleNetworkConnected(),
             onDisconnected: () => this.handleNetworkDisconnected(),
             onError: (error) => this.handleNetworkError(error),
-            onGameState: (message) => this.handleGameState(message),
-            onRoundStart: (message) => this.handleRoundStart(message),
-            onServerSpin: (message) => this.handleServerSpin(message)
+            onRoundStart: (timeLeft) => this.handleAPIRoundStart(timeLeft),
+            onServerSpin: (spinIndex) => this.handleAPIServerSpin(spinIndex),
+            onNoGames: () => this.handleNoGames(),
+            onGameResumed: () => this.handleGameResumed()
         });
 
         // Initialize input system
@@ -142,6 +143,9 @@ export class MainScene extends Scene {
             this.roulette.debugWheelState();
         }
 
+        // 🌟 Start glow effect for the winning number
+        this.roulette.startWinningNumberGlow(actualWinner);
+
         // 🔧 FIX: No need to restart wheel - it never stops in real casino mode
         console.log("🎰 Wheel continues constant rotation - ready for next spin immediately");
 
@@ -149,6 +153,10 @@ export class MainScene extends Scene {
         if (!Globals.isProd) {
             Globals.gsap?.delayedCall(1.5, () => {
                 console.log("🎰 Manual mode: Starting countdown for next round...");
+                
+                // 🌑 Stop glow effect when countdown starts
+                this.roulette.stopWinningNumberGlow();
+                
                 this.gameUI.startCountdown(ROULETTE_CONFIG.autoCountdownDuration, () => {
                     console.log("⏰ Countdown finished! You can spin again!");
                 });
@@ -186,47 +194,29 @@ export class MainScene extends Scene {
 
     private handleNetworkConnected(): void {
         this.gameUI.updateConnectionStatus('CONNECTED');
+        // this.gameUI.hideNoGamesBanner(); // Hide banner on successful connection
         this.updateGameState();
-        console.log("🌐 Network connected - server mode activated");
+        console.log("🌐 API connected - polling-based game mode activated");
     }
 
     private handleNetworkDisconnected(): void {
         this.gameUI.updateConnectionStatus('DISCONNECTED');
+        this.gameUI.showNoGamesBanner(); // Show banner when disconnected
         this.updateGameState();
-        console.log("🌐 Network disconnected - manual mode activated");
+        console.log("🔴 API disconnected - manual mode activated");
     }
 
     private handleNetworkError(error: any): void {
         this.gameUI.updateConnectionStatus('ERROR');
-        console.error("🌐 Network error:", error);
+        this.gameUI.showNoGamesBanner(); // Show banner on error
+        console.error("❌ API connection error:", error);
     }
 
-    private handleGameState(message: GameStateMessage): void {
-        console.log(`🎮 Game state received:`, message);
-        
-        if (message.roundActive && message.timeLeft > 0) {
-            // Stop any current spin
-            if (this.isSpinning) {
-                this.ballPhysics.stopAllAnimations();
-                this.isSpinning = false;
-                this.updateGameState();
-            }
-
-            // Sync countdown with server
-            const seconds = Math.ceil(message.timeLeft / 1000);
-            this.gameUI.startCountdown(seconds, () => {
-                console.log('⏰ Synced countdown finished! Waiting for server spin...');
-            });
-        } else {
-            console.log('💤 Server is in waiting state');
-            this.gameUI.stopCountdown();
-        }
-
-        this.gameUI.updateConnectionStatus('CONNECTED');
-    }
-
-    private handleRoundStart(message: RoundStartMessage): void {
-        console.log(`🕒 Round started! ${message.timeLeft}ms remaining`);
+    /**
+     * 🎯 Handle API round start (new polling-based method)
+     */
+    private handleAPIRoundStart(timeLeft: number): void {
+        console.log(`🎯 API Round started! ${timeLeft}s remaining`);
         
         // Stop any current spin
         if (this.isSpinning) {
@@ -235,30 +225,72 @@ export class MainScene extends Scene {
             this.updateGameState();
         }
 
+        // 🌑 Stop glow effect when new round starts
+        this.roulette.stopWinningNumberGlow();
+
+        // Hide no games banner if showing
+        this.gameUI.hideNoGamesBanner();
+
         // Start countdown with server time
-        const seconds = Math.ceil(message.timeLeft / 1000);
-        this.gameUI.startCountdown(seconds, () => {
-            console.log('⏰ Server countdown finished! Waiting for spin...');
+        this.gameUI.startCountdown(timeLeft, () => {
+            console.log('⏰ API countdown finished! Waiting for spin...');
         });
     }
 
-    private handleServerSpin(message: SpinMessage): void {
-        console.log(`🎰 Server spin received! Target INDEX: ${message.index}`);
+    /**
+     * 🎰 Handle API server spin (new polling-based method)
+     */
+    private handleAPIServerSpin(spinIndex: number): void {
+        console.log(`🎰 API Spin triggered! Index: ${spinIndex}`);
         
-        // 🔧 FIX: Convert server index to actual number
-        const rouletteNumbers = this.roulette.getRouletteNumbers();
-        const targetNumber = rouletteNumbers[message.index];
-        
-        if (targetNumber === undefined) {
-            console.error(`❌ Invalid server index: ${message.index}. Valid range: 0-${rouletteNumbers.length - 1}`);
+        // Validate spin index
+        if (spinIndex < 0 || spinIndex >= 37) {
+            console.error(`❌ Invalid spin index from API: ${spinIndex}. Valid range: 0-36`);
             return;
         }
         
-        console.log(`🎯 Converted server index ${message.index} to target number ${targetNumber}`);
+        // 🔧 FIX: Convert server index to actual number
+        const rouletteNumbers = this.roulette.getRouletteNumbers();
+        const targetNumber = rouletteNumbers[spinIndex];
         
-        // Stop countdown and execute spin with the actual number
+        if (targetNumber === undefined) {
+            console.error(`❌ Invalid server index: ${spinIndex}. Valid range: 0-${rouletteNumbers.length - 1}`);
+            return;
+        }
+        
+        console.log(`🎯 Converted API index ${spinIndex} to target number ${targetNumber}`);
+        
+        // Hide no games banner and stop countdown
+        this.gameUI.hideNoGamesBanner();
         this.gameUI.stopCountdown();
+        
+        // Execute spin with the actual number
         this.startSpin(targetNumber);
+    }
+
+    /**
+     * 💤 Handle no games state
+     */
+    private handleNoGames(): void {
+        console.log('💤 No active games - showing banner');
+        
+        // Stop any current spin or countdown
+        if (this.isSpinning) {
+            this.ballPhysics.stopAllAnimations();
+            this.isSpinning = false;
+            this.updateGameState();
+        }
+        
+        this.gameUI.stopCountdown();
+        this.gameUI.showNoGamesBanner();
+    }
+
+    /**
+     * ▶️ Handle game resumed state
+     */
+    private handleGameResumed(): void {
+        console.log('▶️ Game resumed - hiding banner');
+        this.gameUI.hideNoGamesBanner();
     }
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -282,6 +314,9 @@ export class MainScene extends Scene {
 
     private handleInputCountdownStart(seconds: number): void {
         if (!Globals.isProd) {
+            // 🌑 Stop glow effect when manual countdown starts
+            this.roulette.stopWinningNumberGlow();
+            
             this.gameUI.startCountdown(seconds, () => {
                 console.log("Manual countdown completed!");
             });
@@ -311,6 +346,10 @@ export class MainScene extends Scene {
         }
 
         console.log(`🎯 Starting spin to NUMBER ${winningNumber} (not index!)`);
+        
+        // 🌑 Stop any existing glow effect when new spin starts
+        this.roulette.stopWinningNumberGlow();
+        
         this.isSpinning = true;
         this.updateGameState();
         
