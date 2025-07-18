@@ -38,10 +38,10 @@ export class MainScene extends Scene {
         rouletteBoard.anchor.set(0.5);
 
         this.mainContainer.addChild(rouletteBoard);
-        rouletteBoard.scale.set(1);
+        rouletteBoard.scale.set(0.5);
         rouletteBoard.position.set(window.innerWidth/2 + rouletteBoard.width/12, window.innerHeight/2+rouletteBoard.height/4);
         rouletteBoard.alpha = 0.1;
-        // rouletteBoard.blendMode = 'multiply';
+        rouletteBoard.blendMode = 'multiply';
         this.initializeScene();
         this.initializeSystems();
         this.connectSystems();

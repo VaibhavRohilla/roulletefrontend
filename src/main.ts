@@ -8,7 +8,7 @@ import { Howl } from "howler";
 import { MyEmitter } from "./myemitter";
 import { config, calculateScaleFactor } from "./appconfig";
 import { gsap } from "gsap";
-import { OrientationManager } from "./OrientationManager";
+
 
 
 export class Game {
@@ -50,7 +50,6 @@ export class Game {
       
       this.setupCanvasStyles();
       this.setupResizeHandler();
-      this.setupOrientationHandling();
 
       console.log("Application initialized, starting loading...");
       
@@ -97,73 +96,6 @@ export class Game {
     window.addEventListener('resize', resizeHandler);
     window.addEventListener('orientationchange', resizeHandler);
     resizeHandler();
-  }
-
-  /**
-   * 🎯 Setup orientation handling for landscape mode
-   */
-  private setupOrientationHandling(): void {
-    console.log("🎯 Setting up landscape orientation handling");
-
-    // Use the centralized OrientationManager
-    const orientationManager = OrientationManager.getInstance();
-    
-    // Enforce landscape mode with automatic user feedback
-    orientationManager.enforceLandscapeMode();
-
-    // Optional: Subscribe to orientation changes for game-specific logic
-    orientationManager.onOrientationChange((orientation) => {
-      console.log(`🎮 Game received orientation change: ${orientation}`);
-      
-      // Trigger a resize to ensure proper scaling
-      if (this.sceneManager) {
-        setTimeout(() => {
-          calculateScaleFactor();
-          this.app.renderer.resize(window.innerWidth, window.innerHeight);
-          this.sceneManager.resize();
-        }, 100);
-      }
-    });
-
-    // Debug mode: Log orientation info if URL contains #debug
-    if (window.location.hash.includes('debug')) {
-      orientationManager.debug();
-      
-      // Set up debug info display
-      this.setupDebugDisplay(orientationManager);
-    }
-  }
-
-  /**
-   * 🔧 Setup debug display for orientation info
-   */
-  private setupDebugDisplay(orientationManager: OrientationManager): void {
-    // Create debug display element
-    const debugDiv = document.createElement('div');
-    debugDiv.className = 'debug-mode active';
-    debugDiv.id = 'orientationDebug';
-    document.body.appendChild(debugDiv);
-
-    // Update debug info
-    const updateDebugInfo = () => {
-      const info = orientationManager.getOrientationInfo();
-      debugDiv.innerHTML = `
-        <strong>🔍 Orientation Debug</strong><br>
-        Orientation: ${info.current}<br>
-        Dimensions: ${info.width}x${info.height}<br>
-        Mobile: ${info.isMobile ? 'Yes' : 'No'}<br>
-        Lock Support: ${info.supportsLock ? 'Yes' : 'No'}<br>
-        Scale Factor: ${config.scaleFactor.toFixed(2)}<br>
-        Min Scale: ${config.minScaleFactor.toFixed(2)}
-      `;
-    };
-
-    // Initial update and subscribe to changes
-    updateDebugInfo();
-    orientationManager.onOrientationChange(updateDebugInfo);
-    
-    // Update on resize for scale factor changes
-    window.addEventListener('resize', updateDebugInfo);
   }
 
   async startLoading(): Promise<void> {

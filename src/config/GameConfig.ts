@@ -26,13 +26,13 @@ export const ROULETTE_CONFIG = {
 
     // 🌀 BALL ROTATION PARAMETERS
     wheelSpins: 4,          // Total wheel rotations during animation
-    ballSpins: 4,           // Total ball rotations during outer track phase
+    ballSpins: 2,           // Total ball rotations during outer track phase
     
     // 🎯 ANGULAR PROXIMITY DETECTION
     pocketDetectionThreshold: 3, // Degrees - when ball is considered "aligned" with pocket
     
     // Constant wheel rotation (never stops)
-    constantWheelSpeed: 0.5, // rotations per second (slow and steady)
+    constantWheelSpeed: 0.3, // rotations per second (slow and steady)
     
     // 🎨 EASING CONFIGURATIONS
     wheelEasing: "power4.out",        // Board deceleration easing

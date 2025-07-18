@@ -29,5 +29,5 @@ export const Globals: globalDataType = {
   app: undefined,
   soundResources: {},
   gsap: undefined,
-  isProd: true,
+  isProd: false,
 };

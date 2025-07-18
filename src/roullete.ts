@@ -32,6 +32,7 @@ export class RoulleteBoard extends Container {
     private innerOutline!: Sprite;
     private outerOutline!: Sprite;
     private rouletteTop!: Sprite;
+    public roulleteSpinContainer: Container = new Container();
     private numbers: TextLabel[] = [];
     
     // Glow effect state
@@ -51,6 +52,9 @@ export class RoulleteBoard extends Container {
     constructor() {
         super();
         this.initializeWheel();
+        this.roulleteSpinContainer.pivot.set(WHEEL_CONFIG.centerOffsetX, WHEEL_CONFIG.centerOffsetY);
+        this.roulleteSpinContainer.position.set(WHEEL_CONFIG.centerOffsetX, WHEEL_CONFIG.centerOffsetY);
+        this.addChild(this.roulleteSpinContainer);
         this.setupTransform();
     }
     // resize(): void {
@@ -77,35 +81,35 @@ export class RoulleteBoard extends Container {
         this.redBlackStrips.position.set(WHEEL_CONFIG.centerOffsetX, WHEEL_CONFIG.centerOffsetY);
         this.redBlackStrips.scale.set(WHEEL_CONFIG.scale);
         this.redBlackStrips.anchor.set(0.5);
-        this.addChild(this.redBlackStrips);
+        this.roulleteSpinContainer.addChild(this.redBlackStrips);
 
         // Divider lines between numbers
         this.divider = new Sprite(Globals.resources.divider);
         this.divider.position.set(WHEEL_CONFIG.centerOffsetX, WHEEL_CONFIG.centerOffsetY);
         this.divider.scale.set(WHEEL_CONFIG.scale);
         this.divider.anchor.set(0.5);
-        this.addChild(this.divider);
+        this.roulleteSpinContainer.addChild(this.divider);
         
         // Inner outline
         this.innerOutline = new Sprite(Globals.resources.inneroutline);
         this.innerOutline.position.set(WHEEL_CONFIG.centerOffsetX, WHEEL_CONFIG.centerOffsetY);
         this.innerOutline.scale.set(WHEEL_CONFIG.scale);
         this.innerOutline.anchor.set(0.5);
-        this.addChild(this.innerOutline);
+        this.roulleteSpinContainer.addChild(this.innerOutline);
         
         // Outer outline (slightly larger)
             this.outerOutline = new Sprite(Globals.resources.inneroutline);
             this.outerOutline.position.set(WHEEL_CONFIG.centerOffsetX, WHEEL_CONFIG.centerOffsetY);
             this.outerOutline.scale.set(WHEEL_CONFIG.scale * 1.3); // 30% larger
             this.outerOutline.anchor.set(0.5);
-            this.addChild(this.outerOutline);
+            this.roulleteSpinContainer.addChild(this.outerOutline);
         
 
         this.rouletteTop = new Sprite(Globals.resources.top);
         this.rouletteTop.position.set(WHEEL_CONFIG.centerOffsetX, WHEEL_CONFIG.centerOffsetY);
         this.rouletteTop.scale.set(WHEEL_CONFIG.scale);
         this.rouletteTop.anchor.set(0.5);
-        this.addChild(this.rouletteTop);
+        this.roulleteSpinContainer.addChild(this.rouletteTop);
         
         // Create number labels
         this.createNumberLabels();
@@ -151,7 +155,7 @@ export class RoulleteBoard extends Container {
             numberText.scale.set(WHEEL_CONFIG.numberScale);
             
             this.numbers.push(numberText);
-            this.addChild(numberText);
+            this.roulleteSpinContainer.addChild(numberText);
         });
     }
     
@@ -206,7 +210,7 @@ export class RoulleteBoard extends Container {
      */
     public getCurrentWinningNumber(): number {
         // Get current wheel rotation
-        const currentRotation = this.rotation;
+        const currentRotation = this.roulleteSpinContainer.rotation;
         
         // The top position is at -π/2 (270°)
         const topPosition = -Math.PI / 2;
@@ -409,7 +413,7 @@ export class RoulleteBoard extends Container {
      */
     public debugWheelState(): void {
         const currentWinner = this.getCurrentWinningNumber();
-        const rotationDegrees = (this.rotation * (180 / Math.PI)) % 360;
+        const rotationDegrees = (this.roulleteSpinContainer.rotation * (180 / Math.PI)) % 360;
         
         console.log(`
 🎰 WHEEL DEBUG STATE:
@@ -459,8 +463,6 @@ export class RoulleteBoard extends Container {
 
         // Store original properties
         const originalScale = numberLabel.scale.x;
-        const originalAlpha = numberLabel.alpha;
-        const originalColor = numberLabel.style.fill;
 
         // Create elegant pulsing glow animation with casino-style gold effect
         this.glowTween = Globals.gsap?.to(numberLabel, {

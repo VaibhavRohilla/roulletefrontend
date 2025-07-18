@@ -32,14 +32,14 @@ export class WheelSynchronizer {
         this.isRunning = true;
         
         // Start infinite rotation at constant speed
-        this.constantWheelTween = Globals.gsap?.to(this.roulette, {
+        this.constantWheelTween = Globals.gsap?.to(this.roulette.roulleteSpinContainer, {
             rotation: "+=6.283185307179586", // Add 2π radians (one full rotation)
             duration: 1 / ROULETTE_CONFIG.constantWheelSpeed, // Duration for one rotation
             ease: "none", // Linear motion for constant speed
             repeat: -1, // Infinite repeat
             onRepeat: () => {
                 // Keep rotation in a reasonable range to prevent floating point issues
-                this.roulette.rotation = this.roulette.rotation % (2 * Math.PI);
+                this.roulette.roulleteSpinContainer.rotation = this.roulette.roulleteSpinContainer.rotation % (2 * Math.PI);
             }
         });
 
@@ -105,14 +105,14 @@ export class WheelSynchronizer {
      * 🔍 Get current wheel rotation in degrees
      */
     public getCurrentRotationDegrees(): number {
-        return (this.roulette.rotation * 180 / Math.PI) % 360;
+        return (this.roulette.roulleteSpinContainer.rotation * 180 / Math.PI) % 360;
     }
 
     /**
      * 🔍 Get current wheel rotation in radians
      */
     public getCurrentRotationRadians(): number {
-        return this.roulette.rotation % (2 * Math.PI);
+        return this.roulette.roulleteSpinContainer.rotation % (2 * Math.PI);
     }
 
     /**
@@ -143,7 +143,7 @@ export class WheelSynchronizer {
      * 📍 Set wheel to specific rotation (while maintaining constant speed)
      */
     public setRotation(radians: number): void {
-        this.roulette.rotation = radians % (2 * Math.PI);
+        this.roulette.roulleteSpinContainer.rotation = radians % (2 * Math.PI);
         console.log(`📍 Wheel rotation set to ${(radians * 180 / Math.PI).toFixed(2)}°`);
     }
 

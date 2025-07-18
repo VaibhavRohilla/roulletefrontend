@@ -44,7 +44,7 @@ export class BallPhysics {
     // Physics parameters (Simplified for smooth performance)
     private readonly BOUNCE_DAMPING = 0.65;
     private readonly FRICTION_COEFFICIENT = 0.98;
-    private readonly ORBITAL_SPEED_INITIAL = 6; // radians/second (reduced for smoothness)
+    private readonly ORBITAL_SPEED_INITIAL = 4; // radians/second (reduced for smoothness)
     // private readonly MIN_ALIGNMENT_DISTANCE = 18; // degrees (more forgiving)
     // private readonly PRECISE_DROP_DISTANCE = 5; // degrees (strict dropping threshold)
 
@@ -134,7 +134,7 @@ export class BallPhysics {
     private determineBallDirection(): void {
         // Always choose the direction that gets to target fastest
         const targetAngle = this.roulette.getAngleForNumber(this.targetWinningNumber);
-        const currentWheelRotation = this.roulette.rotation;
+        const currentWheelRotation = this.roulette.roulleteSpinContainer.rotation;
         const targetWorldAngle = this.normalizeAngle(targetAngle + currentWheelRotation);
         const ballAngle = this.currentBallAngle;
         
@@ -143,7 +143,8 @@ export class BallPhysics {
         const counterClockwiseDistance = this.calculateForwardDistance(ballAngle, targetWorldAngle, -1);
         
         // Choose shorter forward distance
-        this.ballDirection = clockwiseDistance <= counterClockwiseDistance ? 1 : -1;
+        // this.ballDirection = clockwiseDistance <= counterClockwiseDistance ? 1 : -1;
+        this.ballDirection = -1;
         
         console.log(`🧭 Direction: ${this.ballDirection === 1 ? 'Clockwise' : 'Counter-clockwise'} (CW: ${clockwiseDistance.toFixed(1)}°, CCW: ${counterClockwiseDistance.toFixed(1)}°)`);
     }
@@ -180,7 +181,7 @@ export class BallPhysics {
         this.events.onPhaseChanged('launching', 0);
         
         this.currentTween = Globals.gsap?.to({}, {
-            duration: 0.6,
+            duration: 0.2,
             ease: "power2.out",
             onUpdate: () => {
                 const progress = this.currentTween?.progress() || 0;
@@ -215,7 +216,7 @@ export class BallPhysics {
         this.events.onPhaseChanged('orbital', 0);
         
         // Calculate smooth orbital duration
-        const targetRounds = 2.5 + Math.random() * 1.0; // 2.5-3.5 rounds
+        const targetRounds = 0.5 + Math.random() * 1.0; // 2.5-3.5 rounds
         const orbitalDuration = targetRounds * 2.0; // 2 seconds per round
         
         const orbitalState = { rotation: 0 };
@@ -503,7 +504,7 @@ export class BallPhysics {
                     
                     // 🎯 Check if target pocket has come close enough to capture ball
                     const targetAngle = this.roulette.getAngleForNumber(this.targetWinningNumber);
-                    const currentWheelRotation = this.roulette.rotation;
+                    const currentWheelRotation = this.roulette.roulleteSpinContainer.rotation;
                     const targetWorldAngle = this.normalizeAngle(currentWheelRotation + targetAngle);
                     
                     // Calculate distance between ball and target pocket
@@ -530,7 +531,7 @@ export class BallPhysics {
                     
                     // Calculate target position
                     const targetAngle = this.roulette.getAngleForNumber(this.targetWinningNumber);
-                    const currentWheelRotation = this.roulette.rotation;
+                    const currentWheelRotation = this.roulette.roulleteSpinContainer.rotation;
                     const targetWorldAngle = this.normalizeAngle(currentWheelRotation + targetAngle);
                     
                     // Smoothly interpolate ball toward target pocket
@@ -599,7 +600,7 @@ export class BallPhysics {
         // 🔧 SETTLED BALL: When settled, maintain exact relative position to wheel
         if (this.currentPhase === 'settled') {
             // Use stored relative angle to maintain exact landing position relationship
-            const currentWheelRotation = this.roulette.rotation;
+            const currentWheelRotation = this.roulette.roulleteSpinContainer.rotation;
             this.currentBallAngle = this.normalizeAngle(currentWheelRotation + this.ballRelativeAngleToWheel);
         }
         
@@ -642,7 +643,7 @@ export class BallPhysics {
         
         if (currentWinningNumber === this.targetWinningNumber) {
             const targetAngle = this.roulette.getAngleForNumber(this.targetWinningNumber);
-            const currentWheelRotation = this.roulette.rotation;
+            const currentWheelRotation = this.roulette.roulleteSpinContainer.rotation;
             
             // 🔧 FIX: Use same improved logic as other alignment checks
             const targetWorldAngle = this.normalizeAngle(targetAngle + currentWheelRotation);
@@ -673,7 +674,7 @@ export class BallPhysics {
         
         if (currentWinningNumber === this.targetWinningNumber) {
             const targetAngle = this.roulette.getAngleForNumber(this.targetWinningNumber);
-            const currentWheelRotation = this.roulette.rotation;
+            const currentWheelRotation = this.roulette.roulleteSpinContainer.rotation;
             
             // 🔧 FIX: Use same improved logic as bottom alignment
             const targetWorldAngle = this.normalizeAngle(targetAngle + currentWheelRotation);
