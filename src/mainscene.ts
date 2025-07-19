@@ -288,23 +288,23 @@ export class MainScene extends Scene {
             return;
         }
         
-        // 🔧 FIX: Convert server index to actual number
-        const rouletteNumbers = this.roulette.getRouletteNumbers();
-        const targetNumber = rouletteNumbers[spinIndex];
+        // // 🔧 FIX: Convert server index to actual number
+        // const rouletteNumbers = this.roulette.getRouletteNumbers();
+        // const targetNumber = rouletteNumbers[spinIndex];
         
-        if (targetNumber === undefined) {
-            console.error(`❌ Invalid server index: ${spinIndex}. Valid range: 0-${rouletteNumbers.length - 1}`);
-            return;
-        }
+        // if (targetNumber === undefined) {
+        //     console.error(`❌ Invalid server index: ${spinIndex}. Valid range: 0-${rouletteNumbers.length - 1}`);
+        //     return;
+        // }
         
-        console.log(`🎯 Converted API index ${spinIndex} to target number ${targetNumber}`);
+        // console.log(`🎯 Converted API index ${spinIndex} to target number ${targetNumber}`);
         
         // Hide no games banner and stop countdown
         this.gameUI.hideNoGamesBanner();
         this.gameUI.stopCountdown();
         
         // Execute spin with the actual number
-        this.startSpin(targetNumber);
+        this.startSpin(spinIndex);
     }
 
     /**

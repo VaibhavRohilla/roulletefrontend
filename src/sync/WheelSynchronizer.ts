@@ -140,15 +140,7 @@ export class WheelSynchronizer {
         });
     }
 
-    /**
-     * 🔄 Start constant wheel rotation that never stops (legacy method)
-     * @deprecated Use startGradualRotation() for smooth transitions
-     */
-    public startConstantRotation(): void {
-        console.warn("⚠️ Using legacy startConstantRotation. Consider using startGradualRotation() for smoother experience.");
-        this.startGradualRotation();
-    }
-
+   
     /**
      * ⏸️ Pause wheel rotation (temporary stop)
      */
