@@ -10,6 +10,7 @@ import { GameNetworkManager } from "./network/GameNetworkManager";
 import { InputController } from "./controls/InputController";
 import { WheelSynchronizer } from "./sync/WheelSynchronizer";
 import { ROULETTE_CONFIG } from "./config/GameConfig";
+import { config } from "./appconfig";
 
 
 /**
@@ -34,14 +35,8 @@ export class MainScene extends Scene {
 
     constructor() {
         super(false);
-        const rouletteBoard = new Sprite(Globals.resources.table);
-        rouletteBoard.anchor.set(0.5);
-
-        this.mainContainer.addChild(rouletteBoard);
-        rouletteBoard.scale.set(0.5);
-        rouletteBoard.position.set(window.innerWidth/2 + rouletteBoard.width/12, window.innerHeight/2+rouletteBoard.height/4);
-        rouletteBoard.alpha = 0.1;
-        rouletteBoard.blendMode = 'multiply';
+        // rouletteBoard.alpha = 0.1;
+        // rouletteBoard.blendMode = 'multiply';
         this.initializeScene();
         this.initializeSystems();
         this.connectSystems();
@@ -56,6 +51,13 @@ export class MainScene extends Scene {
      * 🎮 Initialize core scene components
      */
     private initializeScene(): void {
+        const rouletteBoard = new Sprite(Globals.resources.table);
+        this.mainContainer.addChild(rouletteBoard);
+        rouletteBoard.anchor.set(0.5);
+
+        rouletteBoard.scale.set(0.7,0.6);
+        rouletteBoard.anchor.set(0.5);
+        rouletteBoard.position.set(this.roulette.position.x , this.roulette.position.y + this.roulette.height/2.5);
         // Add roulette board to scene
         this.mainContainer.addChild(this.roulette);
         
@@ -201,14 +203,14 @@ export class MainScene extends Scene {
 
     private handleNetworkDisconnected(): void {
         this.gameUI.updateConnectionStatus('DISCONNECTED');
-        this.gameUI.showNoGamesBanner(); // Show banner when disconnected
+        // this.gameUI.showNoGamesBanner(); // Show banner when disconnected
         this.updateGameState();
         console.log("🔴 API disconnected - manual mode activated");
     }
 
     private handleNetworkError(error: any): void {
         this.gameUI.updateConnectionStatus('ERROR');
-        this.gameUI.showNoGamesBanner(); // Show banner on error
+        // this.gameUI.showNoGamesBanner(); // Show banner on error
         console.error("❌ API connection error:", error);
     }
 
@@ -282,7 +284,7 @@ export class MainScene extends Scene {
         }
         
         this.gameUI.stopCountdown();
-        this.gameUI.showNoGamesBanner();
+        // this.gameUI.showNoGamesBanner();
     }
 
     /**

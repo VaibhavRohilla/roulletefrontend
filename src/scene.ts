@@ -48,9 +48,9 @@ export abstract class Scene {
     // }
 
     resetMainContainer() {
-        this.mainContainer.x = config.minLeftX;
-        this.mainContainer.y = config.minTopY;
-        this.mainContainer.scale.set(config.minScaleFactor);
+        this.mainContainer.x = config.leftX;
+        this.mainContainer.y = config.topY;
+        this.mainContainer.scale.set(config.scaleFactor);
     }
     addToScene(obj: any) {
         this.sceneContainer.addChild(obj);

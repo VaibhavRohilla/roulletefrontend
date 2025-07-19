@@ -1,231 +1,219 @@
 {
     "assets": {
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets": {
+        "D:/Freelnace/roulletefrontend/raw-assets": {
             "isFolder": true,
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1752613315247,
-                "duration": 5.792708000051789,
+                "date": 1752927531088,
+                "duration": 1.2255000000586733,
                 "success": true
             }
         },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets": {
+        "D:/Freelnace/roulletefrontend/raw-assets/assets": {
             "isFolder": true,
-            "parent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets",
+            "parent": "D:/Freelnace/roulletefrontend/raw-assets",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1752613315248,
-                "duration": 5.576166999991983,
+                "date": 1752927531088,
+                "duration": 1.2201999999815598,
                 "success": true
             }
         },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/GameBG.png": {
+        "D:/Freelnace/roulletefrontend/raw-assets/assets/GameBG.png": {
             "isFolder": false,
-            "parent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets",
+            "parent": "D:/Freelnace/roulletefrontend/raw-assets/assets",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1751998848258,
-                "duration": 2.667416000000003,
+                "date": 1752926736226,
+                "duration": 115.96550000000025,
                 "success": true
             },
             "hash": "rvZNTg"
         },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/public/assets/assets/GameBG.png": {
+        "D:/Freelnace/roulletefrontend/public/assets/assets/GameBG.png": {
             "isFolder": false,
-            "transformParent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/GameBG.png",
+            "transformParent": "D:/Freelnace/roulletefrontend/raw-assets/assets/GameBG.png",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {}
         },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/NumberCircle.png": {
+        "D:/Freelnace/roulletefrontend/raw-assets/assets/NumberCircle.png": {
             "isFolder": false,
-            "parent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets",
+            "parent": "D:/Freelnace/roulletefrontend/raw-assets/assets",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1751998848259,
-                "duration": 2.021582999999964,
+                "date": 1752926736235,
+                "duration": 106.70789999999943,
                 "success": true
             },
             "hash": "G5neZQ"
         },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/public/assets/assets/NumberCircle.png": {
+        "D:/Freelnace/roulletefrontend/public/assets/assets/NumberCircle.png": {
             "isFolder": false,
-            "transformParent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/NumberCircle.png",
+            "transformParent": "D:/Freelnace/roulletefrontend/raw-assets/assets/NumberCircle.png",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {}
         },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin": {
+        "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin": {
             "isFolder": true,
-            "parent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets",
+            "parent": "D:/Freelnace/roulletefrontend/raw-assets/assets",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1751998848259,
-                "duration": 0.7751250000000027,
+                "date": 1752926736243,
+                "duration": 16.116100000001097,
                 "success": true
             }
         },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin/RedBlackstrips.png": {
+        "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin/ball.png": {
             "isFolder": false,
-            "parent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin",
+            "parent": "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1751998848260,
-                "duration": 1.3456670000000486,
-                "success": true
-            },
-            "hash": "4EqIqg"
-        },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/public/assets/assets/Spin/RedBlackstrips.png": {
-            "isFolder": false,
-            "transformParent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin/RedBlackstrips.png",
-            "metaData": {},
-            "inheritedMetaData": {},
-            "transformData": {}
-        },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin/Roulette.png": {
-            "isFolder": false,
-            "parent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin",
-            "metaData": {},
-            "inheritedMetaData": {},
-            "transformData": {},
-            "stats": {
-                "date": 1751998848260,
-                "duration": 1.1245000000000118,
-                "success": true
-            },
-            "hash": "Y2bM"
-        },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/public/assets/assets/Spin/Roulette.png": {
-            "isFolder": false,
-            "transformParent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin/Roulette.png",
-            "metaData": {},
-            "inheritedMetaData": {},
-            "transformData": {}
-        },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin/ball.png": {
-            "isFolder": false,
-            "parent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin",
-            "metaData": {},
-            "inheritedMetaData": {},
-            "transformData": {},
-            "stats": {
-                "date": 1751998848260,
-                "duration": 0.7697920000000522,
+                "date": 1752926736259,
+                "duration": 157.98559999999998,
                 "success": true
             },
             "hash": "4Qr6fg"
         },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/public/assets/assets/Spin/ball.png": {
+        "D:/Freelnace/roulletefrontend/public/assets/assets/Spin/ball.png": {
             "isFolder": false,
-            "transformParent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin/ball.png",
+            "transformParent": "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin/ball.png",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {}
         },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin/divider.png": {
+        "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin/divider.png": {
             "isFolder": false,
-            "parent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin",
+            "parent": "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1751998848261,
-                "duration": 0.8596669999999449,
+                "date": 1752926736275,
+                "duration": 142.54579999999987,
                 "success": true
             },
             "hash": "gB4yiQ"
         },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/public/assets/assets/Spin/divider.png": {
+        "D:/Freelnace/roulletefrontend/public/assets/assets/Spin/divider.png": {
             "isFolder": false,
-            "transformParent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin/divider.png",
+            "transformParent": "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin/divider.png",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {}
         },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin/inneroutline.png": {
+        "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin/inneroutline.png": {
             "isFolder": false,
-            "parent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin",
+            "parent": "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1751998848261,
-                "duration": 0.7260840000000144,
+                "date": 1752926736309,
+                "duration": 108.03119999999944,
                 "success": true
             },
             "hash": "FAJYfg"
         },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/public/assets/assets/Spin/inneroutline.png": {
+        "D:/Freelnace/roulletefrontend/public/assets/assets/Spin/inneroutline.png": {
             "isFolder": false,
-            "transformParent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin/inneroutline.png",
+            "transformParent": "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin/inneroutline.png",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {}
         },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin/top.png": {
+        "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin/RedBlackstrips.png": {
             "isFolder": false,
-            "parent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin",
+            "parent": "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1751998848261,
-                "duration": 0.35983299999998053,
+                "date": 1752926736342,
+                "duration": 162.60250000000087,
+                "success": true
+            },
+            "hash": "4EqIqg"
+        },
+        "D:/Freelnace/roulletefrontend/public/assets/assets/Spin/RedBlackstrips.png": {
+            "isFolder": false,
+            "transformParent": "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin/RedBlackstrips.png",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {}
+        },
+        "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin/Roulette.png": {
+            "isFolder": false,
+            "parent": "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {},
+            "stats": {
+                "date": 1752926736381,
+                "duration": 138.45559999999932,
+                "success": true
+            },
+            "hash": "Y2bM"
+        },
+        "D:/Freelnace/roulletefrontend/public/assets/assets/Spin/Roulette.png": {
+            "isFolder": false,
+            "transformParent": "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin/Roulette.png",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {}
+        },
+        "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin/top.png": {
+            "isFolder": false,
+            "parent": "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {},
+            "stats": {
+                "date": 1752926736418,
+                "duration": 102.29049999999916,
                 "success": true
             },
             "hash": "zgaYuA"
         },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/public/assets/assets/Spin/top.png": {
+        "D:/Freelnace/roulletefrontend/public/assets/assets/Spin/top.png": {
             "isFolder": false,
-            "transformParent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/Spin/top.png",
+            "transformParent": "D:/Freelnace/roulletefrontend/raw-assets/assets/Spin/top.png",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {}
         },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/table.png": {
+        "D:/Freelnace/roulletefrontend/raw-assets/assets/table.png": {
             "isFolder": false,
-            "parent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets",
+            "parent": "D:/Freelnace/roulletefrontend/raw-assets/assets",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1752613315248,
-                "duration": 5.620292000006884,
+                "date": 1752927531088,
+                "duration": 1.2196999998996034,
                 "success": true
             },
-            "hash": "PORbqQ"
+            "hash": "pwGCxg"
         },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/public/assets/assets/table.png": {
+        "D:/Freelnace/roulletefrontend/public/assets/assets/table.png": {
             "isFolder": false,
-            "transformParent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/assets/table.png",
+            "transformParent": "D:/Freelnace/roulletefrontend/raw-assets/assets/table.png",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {}
-        },
-        "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets/sounds": {
-            "isFolder": true,
-            "parent": "/Users/vaibhav/projects/Personal/roulletetele/Frontend-Roulette/raw-assets",
-            "metaData": {},
-            "inheritedMetaData": {},
-            "transformData": {},
-            "stats": {
-                "date": 1751998848261,
-                "duration": 0.0354579999999487,
-                "success": true
-            }
         }
     }
 }

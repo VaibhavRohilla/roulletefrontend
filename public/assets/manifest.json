@@ -33,34 +33,6 @@
         },
         {
           "alias": [
-            "assets/Spin/RedBlackstrips.png",
-            "assets/Spin/RedBlackstrips",
-            "RedBlackstrips.png",
-            "RedBlackstrips"
-          ],
-          "src": [
-            "assets/Spin/RedBlackstrips.png"
-          ],
-          "data": {
-            "tags": {}
-          }
-        },
-        {
-          "alias": [
-            "assets/Spin/Roulette.png",
-            "assets/Spin/Roulette",
-            "Roulette.png",
-            "Roulette"
-          ],
-          "src": [
-            "assets/Spin/Roulette.png"
-          ],
-          "data": {
-            "tags": {}
-          }
-        },
-        {
-          "alias": [
             "assets/Spin/ball.png",
             "assets/Spin/ball",
             "ball.png",
@@ -96,6 +68,34 @@
           ],
           "src": [
             "assets/Spin/inneroutline.png"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
+            "assets/Spin/RedBlackstrips.png",
+            "assets/Spin/RedBlackstrips",
+            "RedBlackstrips.png",
+            "RedBlackstrips"
+          ],
+          "src": [
+            "assets/Spin/RedBlackstrips.png"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
+            "assets/Spin/Roulette.png",
+            "assets/Spin/Roulette",
+            "Roulette.png",
+            "Roulette"
+          ],
+          "src": [
+            "assets/Spin/Roulette.png"
           ],
           "data": {
             "tags": {}

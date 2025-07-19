@@ -73,7 +73,7 @@ export class BallPhysics {
         this.centerX = center.x;
         this.centerY = center.y;
         
-        this.ballStartRadius = this.roulette.getBallStartRadius(this.ball.width*1.2);
+        this.ballStartRadius = this.roulette.getBallStartRadius(this.ball.width*0.9);
         this.ballEndRadius = this.roulette.getBallEndRadius();
         
         console.log(`📏 Ball physics dimensions calculated:
@@ -88,7 +88,7 @@ export class BallPhysics {
     private initializeBall(): void {
         this.ball.visible = false;
         this.ball.anchor.set(0.5);
-        this.ball.scale.set(0.65);
+        this.ball.scale.set(0.5);
         
         // Position ball at starting radius (3 o'clock position)
         const startX = this.centerX + this.ballStartRadius;
@@ -335,7 +335,7 @@ export class BallPhysics {
                 
                 // Simple scale effect
                 const scale = 1 + (Math.sin(progress * Math.PI * 4) * 0.08 * progress);
-                this.ball.scale.set(0.65 * scale);
+                this.ball.scale.set(0.5 * scale);
                 
                 // Smooth position update
                 this.updateBallPositionSmooth();
@@ -379,7 +379,7 @@ export class BallPhysics {
                 
                 // Smooth scale effect
                 const scaleEffect = 1 + (Math.sin(progress * bounceFrequency) * 0.1 * (1 - progress));
-                this.ball.scale.set(0.65 * scaleEffect);
+                this.ball.scale.set(0.5 * scaleEffect);
                 
                 // Smooth position update
                 this.updateBallPositionSmooth();
@@ -730,7 +730,7 @@ export class BallPhysics {
         // Clean up physical properties but don't change position
         this.ballRadius = this.ballEndRadius;
         this.ballVerticalPosition = 0;
-        this.ball.scale.set(0.65);
+        this.ball.scale.set(0.5);
         this.ball.rotation = 0;
         
         // DON'T update position here - Phase 7 already positioned it correctly

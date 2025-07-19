@@ -50,7 +50,7 @@ export const UI_CONFIG = {
     // Time Display
     timeDisplay: {
         x: config.logicalWidth / 2,
-        y: 40,
+        y: 120,
         fontSize: 24,
         color: 0xFFFFFF,
         fontFamily: "Arial",

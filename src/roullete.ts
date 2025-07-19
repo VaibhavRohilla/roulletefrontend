@@ -7,9 +7,9 @@ import { TextLabel } from "./textlabel";
 // ⚙️ ROULETTE WHEEL CONFIGURATION
 const WHEEL_CONFIG = {
     // Visual Configuration
-    scale: 0.7*config.minScaleFactor,                    // Overall wheel scale
-    numberRadius: 210,             // Distance from center to place numbers
-    numberScale: 0.8,              // Scale factor for number text
+    scale: 0.45*config.minScaleFactor,                    // Overall wheel scale
+    numberRadius: 190,             // Distance from center to place numbers
+    numberScale: 0.7,              // Scale factor for number text
     numberFontSize: 32,            // Font size for numbers
     
     // Colors
@@ -18,7 +18,7 @@ const WHEEL_CONFIG = {
     
     // Layout
     centerOffsetX: config.logicalWidth / 2,
-    centerOffsetY: config.logicalHeight / 2
+    centerOffsetY: config.logicalHeight / 2.2
 } as const;
 
 /**
@@ -135,8 +135,8 @@ export class RoulleteBoard extends Container {
             const angle = this.getAngleForIndex(index);
             
             // Calculate position using polar coordinates
-            const x = centerX + Math.cos(angle) * 300;
-            const y = centerY + Math.sin(angle) * 300;
+            const x = centerX + Math.cos(angle) * WHEEL_CONFIG.numberRadius;
+            const y = centerY + Math.sin(angle) * WHEEL_CONFIG.numberRadius;
             
             // Determine text color based on number type
             const textColor = this.getNumberColor(number);
@@ -402,7 +402,7 @@ export class RoulleteBoard extends Container {
         
         // Ball settles in pockets at the specified depth ratio
         // 0.80 = 80% from center toward numbers = realistic pocket depth
-        const endRadius = numberRadius +  60;
+        const endRadius = numberRadius + 40;
         
         console.log(`🎾 Ball end radius: ${endRadius.toFixed(1)}px (${(pocketDepthRatio * 100)}% of number radius ${numberRadius.toFixed(1)}px)`);
         return endRadius;

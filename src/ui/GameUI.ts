@@ -176,42 +176,34 @@ export class GameUI {
         graphics.lineTo(width - 6, height - 6 - accentSize);
     }
 
-    /**
-     * 🕒 Format current time with elegant casino styling for Nepal (NPT) and India (IST)
-     */
-    private formatCurrentTime(): string {
-        const now = new Date();
-        
-        // Nepal Time (NPT - UTC+5:45)
-        const nepalTime = new Date(now.getTime() + (5.75 * 60 * 60 * 1000) - (now.getTimezoneOffset() * 60 * 1000));
-        const nepalFormatted = this.formatTime12Hour(nepalTime);
-        
-        // Indian Standard Time (IST - UTC+5:30)
-        const indiaTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000) - (now.getTimezoneOffset() * 60 * 1000));
-        const indiaFormatted = this.formatTime12Hour(indiaTime);
-        
-        // Elegant casino-style formatting with decorative elements
-        return `NPT: ${nepalFormatted}  •  IST: ${indiaFormatted}`;
-    }
+/**
+ * 🕒 Format current time with elegant casino styling for Nepal (NPT) and India (IST)
+ */
+private formatCurrentTime(): string {
+    const now = new Date();
 
-    /**
-     * 🕒 Format time in elegant 12-hour format with casino styling
-     */
-    private formatTime12Hour(date: Date): string {
-        let hours = date.getHours();
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        // const seconds = date.getSeconds().toString().padStart(2, '0');
-        const ampm = hours >= 12 ? 'AM' : 'PM';
-        
-        // Convert to 12-hour format
-        hours = hours % 12;
-        hours = hours ? hours : 12; // Hour '0' should be '12'
-        
-        const displayHours = hours.toString().padStart(2, '0');
-        
-        // Elegant formatting with subtle styling
-        return `${displayHours}:${minutes}:${ampm}`;
-    }
+    const indiaFormatter = new Intl.DateTimeFormat('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        // second: '2-digit',
+        hour12: true,
+        timeZone: 'Asia/Kolkata'
+    });
+
+    const nepalFormatter = new Intl.DateTimeFormat('en-NP', {
+        hour: '2-digit',
+        minute: '2-digit',
+        // second: '2-digit',
+        hour12: true,
+        timeZone: 'Asia/Kathmandu'
+    });
+
+    const indiaFormatted = indiaFormatter.format(now).replace(/am|pm/gi, (match) => match.toUpperCase());
+    const nepalFormatted = nepalFormatter.format(now).replace(/am|pm/gi, (match) => match.toUpperCase());
+
+    return `NPT: ${nepalFormatted}  •  IST: ${indiaFormatted}`;
+}
+
 
     /**
      * ⏳ Create countdown overlay with modern styling
