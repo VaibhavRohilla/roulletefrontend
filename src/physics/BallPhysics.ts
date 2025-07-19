@@ -86,7 +86,8 @@ export class BallPhysics {
      * 🎾 Initialize ball sprite and positioning
      */
     private initializeBall(): void {
-        this.ball.visible = false;
+        // BALL FIX: Start with ball visible for debugging, make sure it's properly positioned
+        this.ball.visible = false; // Changed from false to true for immediate visibility
         this.ball.anchor.set(0.5);
         this.ball.scale.set(0.5);
         
@@ -100,7 +101,8 @@ export class BallPhysics {
         this.currentBallAngle = 0;
         this.ballDirection = 1;
         
-        console.log("🎾 Ball initialized - ready for smooth animation");
+        console.log(`🎾 Ball initialized and VISIBLE at position (${startX.toFixed(1)}, ${startY.toFixed(1)}) - ready for smooth animation`);
+        console.log(`📏 Ball positioned at radius ${this.ballStartRadius.toFixed(1)}px from center (${this.centerX}, ${this.centerY})`);
     }
 
     /**

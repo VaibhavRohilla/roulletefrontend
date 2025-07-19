@@ -36,6 +36,12 @@ export class GameUI {
     private noGamesBannerText!: Text;
     private bannerVisible: boolean = false;
 
+    // Winning Banner
+    private winningBanner!: Container;
+    private winningBannerBackground!: Graphics;
+    private winningBannerText!: Text;
+    private winningBannerVisible: boolean = false;
+
     constructor(container: Container, events: GameUIEvents) {
         this.container = container;
     this.events = events;
@@ -52,6 +58,7 @@ export class GameUI {
         this.createCountdownOverlay();
         this.createConnectionStatus();
         this.createNoGamesBanner();
+        this.createWinningBanner();
     }
 
     /**
@@ -190,16 +197,16 @@ private formatCurrentTime(): string {
         timeZone: 'Asia/Kolkata'
     });
 
-    const nepalFormatter = new Intl.DateTimeFormat('en-NP', {
+    const bhutanFormatter = new Intl.DateTimeFormat('en-NP', {
         hour: '2-digit',
         minute: '2-digit',
-        // second: '2-digit',
         hour12: true,
-        timeZone: 'Asia/Kathmandu'
+        timeZone: 'Asia/Thimphu'
     });
+    
 
     const indiaFormatted = indiaFormatter.format(now).replace(/am|pm/gi, (match) => match.toUpperCase());
-    const nepalFormatted = nepalFormatter.format(now).replace(/am|pm/gi, (match) => match.toUpperCase());
+    const nepalFormatted = bhutanFormatter.format(now).replace(/am|pm/gi, (match) => match.toUpperCase());
 
     return `NPT: ${nepalFormatted}  •  IST: ${indiaFormatted}`;
 }
@@ -520,6 +527,85 @@ private formatCurrentTime(): string {
     }
 
     /**
+     * 🏆 Create winning number banner with celebration animation
+     */
+    private createWinningBanner(): void {
+        this.winningBanner = new Container();
+
+        // Full screen overlay background (lighter than countdown for celebratory feel)
+        const overlay = new Graphics();
+        overlay.rect(-config.logicalWidth, -config.logicalHeight, config.logicalWidth*10, config.logicalHeight*10);
+        overlay.fill({color: 0x000000, alpha: 0.5}); // Lighter overlay for celebration
+        overlay.interactive = true;
+        this.winningBanner.addChild(overlay);
+
+        // Center position
+        const centerX = config.logicalWidth / 2;
+        const centerY = config.logicalHeight / 2;
+
+        // Banner dimensions (larger for celebration)
+        const bannerWidth = 600;
+        const bannerHeight = 150;
+
+        // Celebration banner background
+        this.winningBannerBackground = new Graphics();
+        this.drawWinningBannerBackground(bannerWidth, bannerHeight);
+        this.winningBannerBackground.x = centerX - bannerWidth / 2;
+        this.winningBannerBackground.y = centerY - bannerHeight / 2;
+        this.winningBanner.addChild(this.winningBannerBackground);
+
+        // Casino-style celebration text
+        const bannerTextStyle = new TextStyle({
+            fontFamily: '"Times New Roman", "Georgia", serif',
+            fontSize: 36,
+            fontWeight: 'bold',
+            fill: '#FFD700', // Golden celebration color
+            align: 'center',
+            stroke: { color: '#000000', width: 3 },
+            dropShadow: {
+                color: '#FFD700',
+                blur: 10,
+                angle: Math.PI / 4,
+                distance: 4,
+                alpha: 0.6
+            },
+            letterSpacing: 3
+        });
+
+        this.winningBannerText = new Text('🏆 WINNER: 0 🏆', bannerTextStyle);
+        this.winningBannerText.anchor.set(0.5);
+        this.winningBannerText.x = centerX;
+        this.winningBannerText.y = centerY - 15;
+        this.winningBanner.addChild(this.winningBannerText);
+
+        // Secondary celebration message
+        const subTextStyle = new TextStyle({
+            fontFamily: 'Arial',
+            fontSize: 18,
+            fill: '#FFFFFF',
+            align: 'center',
+            fontStyle: 'italic',
+            stroke: { color: '#000000', width: 1 }
+        });
+
+        const subText = new Text('Congratulations! Get ready for the next round!', subTextStyle);
+        subText.anchor.set(0.5);
+        subText.x = centerX;
+        subText.y = centerY + 35; 
+        this.winningBanner.addChild(subText);
+
+        // Set pivot point to center for proper scaling animations
+        this.winningBanner.pivot.set(centerX, centerY);
+        this.winningBanner.position.set(centerX, centerY);
+
+        // Initially hidden
+        this.winningBanner.visible = false;
+        this.container.addChild(this.winningBanner);
+
+        console.log("🏆 Winning banner with celebration overlay created");
+    }
+
+    /**
      * 🎨 Draw elegant casino-style banner background
      */
     private drawNoGamesBannerBackground(width: number, height: number): void {
@@ -582,6 +668,87 @@ private formatCurrentTime(): string {
         this.noGamesBannerBackground.lineTo(width - 10 - accentSize, height - 10);
         this.noGamesBannerBackground.moveTo(width - 10, height - 10);
         this.noGamesBannerBackground.lineTo(width - 10, height - 10 - accentSize);
+    }
+
+    /**
+     * 🏆 Draw elegant background for winning banner with celebration effects
+     */
+    private drawWinningBannerBackground(width: number, height: number): void {
+        this.winningBannerBackground.clear();
+
+        // Drop shadow for depth
+        this.winningBannerBackground.roundRect(4, 4, width, height, 15);
+        this.winningBannerBackground.fill({ color: 0x000000, alpha: 0.7 });
+
+        // Main celebration background with golden gradient effect
+        this.winningBannerBackground.beginFill(0x8B4513); // Rich brown/bronze base
+        this.winningBannerBackground.roundRect(0, 0, width, height, 15);
+        this.winningBannerBackground.endFill();
+
+        // Inner gradient highlight for celebration glow
+        this.winningBannerBackground.beginFill(0xFFD700, 0.3); // Golden highlight
+        this.winningBannerBackground.roundRect(2, 2, width - 4, height / 3, 13);
+        this.winningBannerBackground.endFill();
+
+        // Celebration golden border
+        this.winningBannerBackground.lineStyle(4, 0xFFD700, 1); // Thicker gold border for celebration
+        this.winningBannerBackground.roundRect(0, 0, width, height, 15);
+
+        // Inner celebration accent
+        this.winningBannerBackground.lineStyle(2, 0xFFD700, 0.8);
+        this.winningBannerBackground.roundRect(4, 4, width - 8, height - 8, 11);
+
+        // Decorative celebration corner accents
+        this.drawWinningCornerAccents(width, height);
+    }
+
+    /**
+     * ✨ Add decorative corner accents for celebration banner
+     */
+    private drawWinningCornerAccents(width: number, height: number): void {
+        const accentSize = 25; // Larger for celebration
+        const color = 0xFFD700;
+        
+        // Top-left corner
+        this.winningBannerBackground.lineStyle(3, color, 1);
+        this.winningBannerBackground.moveTo(15, 15);
+        this.winningBannerBackground.lineTo(15 + accentSize, 15);
+        this.winningBannerBackground.moveTo(15, 15);
+        this.winningBannerBackground.lineTo(15, 15 + accentSize);
+
+        // Top-right corner
+        this.winningBannerBackground.moveTo(width - 15, 15);
+        this.winningBannerBackground.lineTo(width - 15 - accentSize, 15);
+        this.winningBannerBackground.moveTo(width - 15, 15);
+        this.winningBannerBackground.lineTo(width - 15, 15 + accentSize);
+
+        // Bottom-left corner
+        this.winningBannerBackground.moveTo(15, height - 15);
+        this.winningBannerBackground.lineTo(15 + accentSize, height - 15);
+        this.winningBannerBackground.moveTo(15, height - 15);
+        this.winningBannerBackground.lineTo(15, height - 15 - accentSize);
+
+        // Bottom-right corner
+        this.winningBannerBackground.moveTo(width - 15, height - 15);
+        this.winningBannerBackground.lineTo(width - 15 - accentSize, height - 15);
+        this.winningBannerBackground.moveTo(width - 15, height - 15);
+        this.winningBannerBackground.lineTo(width - 15, height - 15 - accentSize);
+
+        // Additional celebration decorations - diamond shapes in corners
+        const diamondSize = 8;
+        // Top corners diamonds
+        this.winningBannerBackground.lineStyle(2, color, 0.8);
+        this.winningBannerBackground.moveTo(25, 35);
+        this.winningBannerBackground.lineTo(25 + diamondSize, 35 + diamondSize);
+        this.winningBannerBackground.lineTo(25, 35 + diamondSize * 2);
+        this.winningBannerBackground.lineTo(25 - diamondSize, 35 + diamondSize);
+        this.winningBannerBackground.lineTo(25, 35);
+
+        this.winningBannerBackground.moveTo(width - 25, 35);
+        this.winningBannerBackground.lineTo(width - 25 + diamondSize, 35 + diamondSize);
+        this.winningBannerBackground.lineTo(width - 25, 35 + diamondSize * 2);
+        this.winningBannerBackground.lineTo(width - 25 - diamondSize, 35 + diamondSize);
+        this.winningBannerBackground.lineTo(width - 25, 35);
     }
 
     /**
@@ -923,6 +1090,115 @@ private formatCurrentTime(): string {
     }
 
     /**
+     * 🏆 Show winning banner with celebration animation
+     * @param winningNumber The winning number to display
+     */
+    public showWinningBanner(winningNumber: number): void {
+        if (this.winningBannerVisible) return;
+
+        this.winningBannerVisible = true;
+        this.winningBanner.visible = true;
+
+        // Update the winning number text
+        this.winningBannerText.text = `🏆 WINNER: ${winningNumber} 🏆`;
+
+        // Spectacular entrance animation with celebration effects
+        this.winningBanner.alpha = 0;
+        this.winningBanner.scale.set(0.3);
+        this.winningBanner.rotation = 0.2;
+        
+        // Main entrance animation
+        Globals.gsap?.to(this.winningBanner, {
+            alpha: 1,
+            rotation: 0,
+            duration: 0.8,
+            ease: "power3.out"
+        });
+
+        // Bouncy scale entrance
+        Globals.gsap?.to(this.winningBanner.scale, {
+            x: 1,
+            y: 1,
+            duration: 1.0,
+            ease: "elastic.out(1, 0.5)"
+        });
+
+        // Celebration pulse animation
+        Globals.gsap?.to(this.winningBannerText.scale, {
+            x: 1.1,
+            y: 1.1,
+            duration: 1.5,
+            ease: "power2.inOut",
+            yoyo: true,
+            repeat: -1
+        });
+
+        // Subtle floating animation for the banner
+        const originalY = config.logicalHeight / 2;
+        Globals.gsap?.to(this.winningBanner.position, {
+            y: originalY - 15,
+            duration: 2.5,
+            ease: "power1.inOut",
+            yoyo: true,
+            repeat: -1
+        });
+
+        // Add golden glow effect to the text
+        Globals.gsap?.to(this.winningBannerText, {
+            alpha: 0.8,
+            duration: 0.8,
+            ease: "power2.inOut",
+            yoyo: true,
+            repeat: -1
+        });
+
+        console.log(`🏆 Winning banner shown for number: ${winningNumber}`);
+    }
+
+    /**
+     * 🏆 Hide winning banner with smooth animation
+     */
+    public hideWinningBanner(): void {
+        if (!this.winningBannerVisible) return;
+
+        this.winningBannerVisible = false;
+
+        // Stop all celebration animations
+        Globals.gsap?.killTweensOf(this.winningBannerText.scale);
+        Globals.gsap?.killTweensOf(this.winningBannerText);
+        Globals.gsap?.killTweensOf(this.winningBanner.position);
+
+        // Smooth exit animation
+        Globals.gsap?.to(this.winningBanner, {
+            alpha: 0,
+            rotation: -0.1,
+            duration: 0.6,
+            ease: "power2.in"
+        });
+
+        Globals.gsap?.to(this.winningBanner.scale, {
+            x: 0.7,
+            y: 0.7,
+            duration: 0.6,
+            ease: "power2.in",
+            onComplete: () => {
+                this.winningBanner.visible = false;
+                this.winningBanner.scale.set(1);
+                this.winningBanner.rotation = 0;
+                this.winningBannerText.scale.set(1);
+                this.winningBannerText.alpha = 1;
+                
+                // Reset position (with proper pivot centering)
+                const centerX = config.logicalWidth / 2;
+                const centerY = config.logicalHeight / 2;
+                this.winningBanner.position.set(centerX, centerY);
+            }
+        });
+
+        console.log("🏆 Winning banner hidden");
+    }
+
+    /**
      * 🔍 Public state getters
      */
     public isCountdownRunning(): boolean {
@@ -944,6 +1220,10 @@ private formatCurrentTime(): string {
         return this.bannerVisible;
     }
 
+    public isWinningBannerVisible(): boolean {
+        return this.winningBannerVisible;
+    }
+
     /**
      * 🔄 Update method (called from main loop)
      */
@@ -958,10 +1238,15 @@ private formatCurrentTime(): string {
     public destroy(): void {
         this.stopCountdown();
         this.hideNoGamesBanner();
+        this.hideWinningBanner();
         
         // Kill all GSAP animations
         if (this.noGamesBanner) {
             Globals.gsap?.killTweensOf(this.noGamesBanner);
+        }
+        if (this.winningBanner) {
+            Globals.gsap?.killTweensOf(this.winningBanner);
+            Globals.gsap?.killTweensOf(this.winningBannerText);
         }
         
         // Remove all UI elements
@@ -969,6 +1254,7 @@ private formatCurrentTime(): string {
         if (this.countdownOverlay) this.container.removeChild(this.countdownOverlay);
         if (this.connectionStatusText) this.container.removeChild(this.connectionStatusText);
         if (this.noGamesBanner) this.container.removeChild(this.noGamesBanner);
+        if (this.winningBanner) this.container.removeChild(this.winningBanner);
         
         console.log("🎨 Game UI destroyed");
     }

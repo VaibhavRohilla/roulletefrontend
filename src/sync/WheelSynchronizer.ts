@@ -5,36 +5,132 @@ import { ROULETTE_CONFIG } from "../config/GameConfig";
 
 /**
  * 🔄 Wheel Synchronizer
- * Manages constant wheel rotation that never stops - like a real casino
+ * Manages smooth wheel rotation with gradual start/stop - like a real casino
  */
 export class WheelSynchronizer {
     private roulette: RoulleteBoard;
     private constantWheelTween: any = null;
+    private transitionTween: any = null;
     private isRunning: boolean = false;
+    private isTransitioning: boolean = false;
+    private currentSpeed: number = 0;
+    private targetSpeed: number = ROULETTE_CONFIG.constantWheelSpeed;
+
+    // Callbacks for coordination with other systems
+    private onStartComplete?: () => void;
+    private onStopComplete?: () => void;
 
     constructor(roulette: RoulleteBoard) {
         this.roulette = roulette;
-        console.log("🔄 Wheel synchronizer initialized - constant speed mode");
+        console.log("🔄 Wheel synchronizer initialized - smooth transitions enabled");
     }
 
     /**
-     * 🔄 Start constant wheel rotation that never stops
-     * Just like a real casino roulette wheel
+     * 🚀 Start wheel rotation gradually and smoothly
+     * @param onComplete Optional callback when start transition is complete
      */
-    public startConstantRotation(): void {
-        if (this.isRunning) {
-            console.log("🔄 Wheel rotation already running");
+    public startGradualRotation(onComplete?: () => void): void {
+        if (this.isRunning || this.isTransitioning) {
+            console.log("🔄 Wheel rotation already running or transitioning");
             return;
         }
 
-        console.log(`🔄 Starting constant wheel rotation at ${ROULETTE_CONFIG.constantWheelSpeed} rotations per second - NEVER STOPS`);
+        console.log("🚀 WHEEL SYNCHRONIZER: Starting gradual wheel rotation with smooth acceleration - NEW VERSION ACTIVE!");
         
-        this.isRunning = true;
+        this.onStartComplete = onComplete;
+        this.isTransitioning = true;
+        this.currentSpeed = 0;
+
+        // Start with very slow rotation and gradually accelerate
+        this.transitionTween = Globals.gsap?.to(this, {
+            currentSpeed: this.targetSpeed,
+            duration: 2.5, // EASING FIX: Slightly longer for smoother feel
+            ease: "expo.out", // EASING FIX: Exponential easing for ultra-smooth casino feel
+            onUpdate: () => {
+                this.updateConstantRotation();
+            },
+            onComplete: () => {
+                this.isTransitioning = false;
+                this.isRunning = true;
+                console.log(`✅ Wheel reached full speed: ${this.targetSpeed} rotations/sec`);
+                
+                if (this.onStartComplete) {
+                    this.onStartComplete();
+                    this.onStartComplete = undefined;
+                }
+            }
+        });
+
+        console.log("🔄 Gradual wheel acceleration started");
+    }
+
+    /**
+     * 🛑 Stop wheel rotation gradually and smoothly
+     * @param onComplete Optional callback when stop transition is complete
+     */
+    public stopGradualRotation(onComplete?: () => void): void {
+        if (!this.isRunning || this.isTransitioning) {
+            console.log("🔄 Wheel not running or already transitioning");
+            return;
+        }
+
+        console.log("🛑 Starting gradual wheel stop with smooth deceleration");
         
-        // Start infinite rotation at constant speed
+        this.onStopComplete = onComplete;
+        this.isTransitioning = true;
+
+        // Kill the constant rotation tween
+        if (this.constantWheelTween) {
+            this.constantWheelTween.kill();
+            this.constantWheelTween = null;
+        }
+
+        // Gradually decelerate to stop
+        this.transitionTween = Globals.gsap?.to(this, {
+            currentSpeed: 0,
+            duration: 4.0, // EASING FIX: Longer stop for more realistic casino feel
+            ease: "expo.out", // EASING FIX: Exponential easing for ultra-smooth casino stop
+            onUpdate: () => {
+                this.updateConstantRotation();
+            },
+            onComplete: () => {
+                this.isTransitioning = false;
+                this.isRunning = false;
+                this.currentSpeed = 0;
+                console.log("✅ Wheel stopped completely");
+                
+                if (this.onStopComplete) {
+                    this.onStopComplete();
+                    this.onStopComplete = undefined;
+                }
+            }
+        });
+
+        console.log("🔄 Gradual wheel deceleration started");
+    }
+
+    /**
+     * 🔄 Update wheel rotation based on current speed
+     */
+    private updateConstantRotation(): void {
+        if (this.currentSpeed <= 0) {
+            // Stop rotation completely
+            if (this.constantWheelTween) {
+                this.constantWheelTween.kill();
+                this.constantWheelTween = null;
+            }
+            return;
+        }
+
+        // Kill existing tween before creating new one
+        if (this.constantWheelTween) {
+            this.constantWheelTween.kill();
+        }
+
+        // Create new rotation tween with current speed
         this.constantWheelTween = Globals.gsap?.to(this.roulette.roulleteSpinContainer, {
             rotation: "+=6.283185307179586", // Add 2π radians (one full rotation)
-            duration: 1 / ROULETTE_CONFIG.constantWheelSpeed, // Duration for one rotation
+            duration: 1 / this.currentSpeed, // Duration for one rotation at current speed
             ease: "none", // Linear motion for constant speed
             repeat: -1, // Infinite repeat
             onRepeat: () => {
@@ -42,8 +138,15 @@ export class WheelSynchronizer {
                 this.roulette.roulleteSpinContainer.rotation = this.roulette.roulleteSpinContainer.rotation % (2 * Math.PI);
             }
         });
+    }
 
-        console.log("🔄 Constant wheel rotation started - wheel will NEVER stop like a real casino");
+    /**
+     * 🔄 Start constant wheel rotation that never stops (legacy method)
+     * @deprecated Use startGradualRotation() for smooth transitions
+     */
+    public startConstantRotation(): void {
+        console.warn("⚠️ Using legacy startConstantRotation. Consider using startGradualRotation() for smoother experience.");
+        this.startGradualRotation();
     }
 
     /**
@@ -52,6 +155,9 @@ export class WheelSynchronizer {
     public pauseRotation(): void {
         if (this.constantWheelTween) {
             this.constantWheelTween.pause();
+        }
+        if (this.transitionTween) {
+            this.transitionTween.pause();
         }
         console.log("⏸️ Wheel rotation paused");
     }
@@ -63,42 +169,69 @@ export class WheelSynchronizer {
         if (this.constantWheelTween) {
             this.constantWheelTween.resume();
         }
+        if (this.transitionTween) {
+            this.transitionTween.resume();
+        }
         console.log("▶️ Wheel rotation resumed");
     }
 
     /**
-     * 🛑 Stop wheel rotation completely
+     * 🛑 Stop wheel rotation completely (immediate)
      */
     public stopRotation(): void {
         if (this.constantWheelTween) {
             this.constantWheelTween.kill();
             this.constantWheelTween = null;
         }
+        if (this.transitionTween) {
+            this.transitionTween.kill();
+            this.transitionTween = null;
+        }
         this.isRunning = false;
+        this.isTransitioning = false;
+        this.currentSpeed = 0;
         console.log("🛑 Wheel rotation stopped completely");
     }
 
     /**
-     * ⚙️ Change wheel rotation speed
+     * ⚙️ Change wheel rotation speed gradually
      */
-    public setRotationSpeed(rotationsPerSecond: number): void {
+    public setRotationSpeedGradually(rotationsPerSecond: number, duration: number = 1.5): void {
         if (rotationsPerSecond <= 0) {
             console.warn("⚠️ Invalid rotation speed:", rotationsPerSecond);
             return;
         }
 
-        const wasRunning = this.isRunning;
+        console.log(`⚙️ Changing wheel speed to ${rotationsPerSecond} rotations/sec over ${duration}s`);
         
-        // Stop current rotation
-        this.stopRotation();
+        this.targetSpeed = rotationsPerSecond;
         
-        // Update speed and restart if it was running
-        if (wasRunning) {
-            // Temporarily modify the config (this could be made more elegant)
-            (ROULETTE_CONFIG as any).constantWheelSpeed = rotationsPerSecond;
-            this.startConstantRotation();
-            console.log(`⚙️ Wheel rotation speed changed to ${rotationsPerSecond} rotations/sec`);
+        if (this.isRunning || this.isTransitioning) {
+            // Kill any transition tween
+            if (this.transitionTween) {
+                this.transitionTween.kill();
+            }
+
+            this.transitionTween = Globals.gsap?.to(this, {
+                currentSpeed: this.targetSpeed,
+                duration: duration,
+                ease: "power2.inOut",
+                onUpdate: () => {
+                    this.updateConstantRotation();
+                },
+                onComplete: () => {
+                    console.log(`✅ Wheel speed changed to ${this.targetSpeed} rotations/sec`);
+                }
+            });
         }
+    }
+
+    /**
+     * ⚙️ Change wheel rotation speed (legacy method)
+     * @deprecated Use setRotationSpeedGradually() for smooth transitions
+     */
+    public setRotationSpeed(rotationsPerSecond: number): void {
+        this.setRotationSpeedGradually(rotationsPerSecond);
     }
 
     /**
@@ -120,13 +253,17 @@ export class WheelSynchronizer {
      */
     public getStatus(): {
         isRunning: boolean;
-        speed: number;
+        isTransitioning: boolean;
+        currentSpeed: number;
+        targetSpeed: number;
         currentRotationDegrees: number;
         currentRotationRadians: number;
     } {
         return {
             isRunning: this.isRunning,
-            speed: ROULETTE_CONFIG.constantWheelSpeed,
+            isTransitioning: this.isTransitioning,
+            currentSpeed: this.currentSpeed,
+            targetSpeed: this.targetSpeed,
             currentRotationDegrees: this.getCurrentRotationDegrees(),
             currentRotationRadians: this.getCurrentRotationRadians()
         };
@@ -136,11 +273,18 @@ export class WheelSynchronizer {
      * 🔍 Check if wheel is rotating
      */
     public isRotating(): boolean {
-        return this.isRunning;
+        return this.isRunning || this.isTransitioning;
     }
 
     /**
-     * 📍 Set wheel to specific rotation (while maintaining constant speed)
+     * 🔍 Check if wheel is in transition (starting or stopping)
+     */
+    public isInTransition(): boolean {
+        return this.isTransitioning;
+    }
+
+    /**
+     * 📍 Set wheel to specific rotation (while maintaining speed)
      */
     public setRotation(radians: number): void {
         this.roulette.roulleteSpinContainer.rotation = radians % (2 * Math.PI);
@@ -160,6 +304,8 @@ export class WheelSynchronizer {
      */
     public destroy(): void {
         this.stopRotation();
+        this.onStartComplete = undefined;
+        this.onStopComplete = undefined;
         console.log("🔄 Wheel synchronizer destroyed");
     }
 } 

@@ -10,7 +10,6 @@ import { GameNetworkManager } from "./network/GameNetworkManager";
 import { InputController } from "./controls/InputController";
 import { WheelSynchronizer } from "./sync/WheelSynchronizer";
 import { ROULETTE_CONFIG } from "./config/GameConfig";
-import { config } from "./appconfig";
 
 
 /**
@@ -63,9 +62,31 @@ export class MainScene extends Scene {
         
         // Create ball sprite
         this.ball = new Sprite(Globals.resources.ball);
+        // BALL FIX: Ensure ball is visible and positioned on top of roulette
+        this.ball.visible = true;
+        this.ball.anchor.set(0.5);
+        this.ball.scale.set(0.5);
         this.mainContainer.addChild(this.ball);
         
+        console.log("🎾 Ball sprite created and positioned for visibility");
+        
+        // BALL DEBUG: Add ball to the very top for visibility
+        this.mainContainer.setChildIndex(this.ball, this.mainContainer.children.length - 1);
+        
         console.log("🎮 Core scene components initialized");
+        
+        // BALL DEBUG: Log ball status
+        setTimeout(() => {
+            console.log(`🔍 BALL DEBUG STATUS:
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            🎾 Ball visible: ${this.ball.visible}
+            📍 Ball position: (${this.ball.x}, ${this.ball.y})
+            📏 Ball scale: (${this.ball.scale.x}, ${this.ball.scale.y})
+            🔢 Ball z-index: ${this.mainContainer.getChildIndex(this.ball)}
+            📦 Total children: ${this.mainContainer.children.length}
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+        }, 1000);
+        
     }
 
     /**
@@ -76,7 +97,11 @@ export class MainScene extends Scene {
         this.ballPhysics = new BallPhysics(this.ball, this.roulette, {
             onSpinComplete: (winningNumber: number) => this.handleSpinComplete(winningNumber),
             onBallLanded: (winningNumber: number) => this.handleBallLanded(winningNumber),
-            onPhaseChanged: (phase: string, progress: number) => this.handlePhaseChanged(phase, progress)
+            onPhaseChanged: (phase: string, progress: number) => {
+                console.log(`🎬 Ball physics phase: ${phase} (${(progress * 100).toFixed(1)}%)`);
+            }
+            // onPhaseChanged: (phase: string, progress: number) => this.handlePhaseChanged(phase, progress)
+
         });
 
         // Initialize UI system
@@ -113,9 +138,6 @@ export class MainScene extends Scene {
      * 🔗 Connect systems and start operations
      */
     private connectSystems(): void {
-        // Start wheel rotation
-        this.wheelSync.startConstantRotation();
-        
         // Connect to network
         this.networkManager.connectToServer();
         
@@ -145,27 +167,36 @@ export class MainScene extends Scene {
             this.roulette.debugWheelState();
         }
 
-        // 🌟 Start glow effect for the winning number
-        this.roulette.startWinningNumberGlow(actualWinner);
+        // 🎰 ISSUE 4 FIX: Keep wheel spinning with ball on winning index
+        console.log("🎰 Wheel continues spinning with ball on winning index until countdown starts");
 
-        // 🔧 FIX: No need to restart wheel - it never stops in real casino mode
-        console.log("🎰 Wheel continues constant rotation - ready for next spin immediately");
+        // 🏆 ISSUE 3 FIX: Show winning banner AFTER 4 seconds (not immediately)
+        Globals.gsap?.delayedCall(4.0, () => {
+            console.log("🏆 4 seconds passed - showing winning banner now");
+            this.gameUI.showWinningBanner(winningNumber);
 
-        // Start countdown for next round (manual mode only)
-        if (!Globals.isProd) {
-            Globals.gsap?.delayedCall(1.5, () => {
-                console.log("🎰 Manual mode: Starting countdown for next round...");
+            // Hide banner after 5 seconds and start countdown
+            Globals.gsap?.delayedCall(5.0, () => {
+                console.log("🏆 Hiding winning banner and starting countdown");
+                this.gameUI.hideWinningBanner();
                 
-                // 🌑 Stop glow effect when countdown starts
-                this.roulette.stopWinningNumberGlow();
-                
-                this.gameUI.startCountdown(ROULETTE_CONFIG.autoCountdownDuration, () => {
-                    console.log("⏰ Countdown finished! You can spin again!");
+                // 🛑 ISSUE 4 FIX: Stop wheel only when countdown starts
+                this.wheelSync.stopGradualRotation(() => {
+                    console.log("✅ Wheel stopped as countdown begins");
                 });
+                
+                // Start countdown for next round (manual mode only)
+                if (!Globals.isProd) {
+                    console.log("🎰 Manual mode: Starting countdown for next round...");
+                    
+                    this.gameUI.startCountdown(ROULETTE_CONFIG.autoCountdownDuration, () => {
+                        console.log("⏰ Countdown finished! You can spin again!");
+                    });
+                } else {
+                    console.log("🌐 Server mode: Waiting for server to control next round timing.");
+                }
             });
-        } else {
-            console.log("🌐 Server mode: Waiting for server to control next round timing.");
-        }
+        });
     }
 
     private handleBallLanded(winningNumber: number): void {
@@ -173,13 +204,13 @@ export class MainScene extends Scene {
         // Future: Add visual effects, sounds, etc.
     }
 
-    private handlePhaseChanged(phase: string, progress: number): void {
-        console.log(`🎬 Ball physics phase: ${phase} (${(progress * 100).toFixed(1)}%)`);
+    // private handlePhaseChanged(phase: string, progress: number): void {
+    //     // console.log(`🎬 Ball physics phase: ${phase} (${(progress * 100).toFixed(1)}%)`);
         
-        // You can add visual feedback here based on the phase
-        // For example, update UI to show current animation phase
+    //     // You can add visual feedback here based on the phase
+    //     // For example, update UI to show current animation phase
         
-    }
+    // }
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // 🎨 UI EVENT HANDLERS
@@ -203,14 +234,14 @@ export class MainScene extends Scene {
 
     private handleNetworkDisconnected(): void {
         this.gameUI.updateConnectionStatus('DISCONNECTED');
-        // this.gameUI.showNoGamesBanner(); // Show banner when disconnected
+        this.gameUI.showNoGamesBanner(); // Show banner when disconnected
         this.updateGameState();
         console.log("🔴 API disconnected - manual mode activated");
     }
 
     private handleNetworkError(error: any): void {
         this.gameUI.updateConnectionStatus('ERROR');
-        // this.gameUI.showNoGamesBanner(); // Show banner on error
+        this.gameUI.showNoGamesBanner(); // Show banner on error
         console.error("❌ API connection error:", error);
     }
 
@@ -227,11 +258,17 @@ export class MainScene extends Scene {
             this.updateGameState();
         }
 
-        // 🌑 Stop glow effect when new round starts
-        this.roulette.stopWinningNumberGlow();
+        // Stop wheel if it's spinning from previous round
+        if (this.wheelSync.isRotating()) {
+            console.log("🛑 Stopping wheel for new API round");
+            this.wheelSync.stopGradualRotation(() => {
+                console.log("✅ Wheel stopped for new API round");
+            });
+        }
 
-        // Hide no games banner if showing
+        // Hide banners when new round starts
         this.gameUI.hideNoGamesBanner();
+        this.gameUI.hideWinningBanner();
 
         // Start countdown with server time
         this.gameUI.startCountdown(timeLeft, () => {
@@ -284,7 +321,7 @@ export class MainScene extends Scene {
         }
         
         this.gameUI.stopCountdown();
-        // this.gameUI.showNoGamesBanner();
+        this.gameUI.showNoGamesBanner();
     }
 
     /**
@@ -316,9 +353,6 @@ export class MainScene extends Scene {
 
     private handleInputCountdownStart(seconds: number): void {
         if (!Globals.isProd) {
-            // 🌑 Stop glow effect when manual countdown starts
-            this.roulette.stopWinningNumberGlow();
-            
             this.gameUI.startCountdown(seconds, () => {
                 console.log("Manual countdown completed!");
             });
@@ -348,19 +382,23 @@ export class MainScene extends Scene {
         }
 
         console.log(`🎯 Starting spin to NUMBER ${winningNumber} (not index!)`);
-        
-        // 🌑 Stop any existing glow effect when new spin starts
-        this.roulette.stopWinningNumberGlow();
+        console.log("🔥 NEW CODE VERSION - WHEEL SYNC FIX ACTIVE");
         
         this.isSpinning = true;
         this.updateGameState();
         
-        // 🔧 FIX: No wheel synchronization - wheel rotates constantly like a real casino
-        // Ball physics handles all timing to land when target number passes top position
-        console.log(`🎰 REAL CASINO MODE: Wheel continues constant rotation, ball must time itself perfectly`);
+        // 🚀 ISSUE 1 FIX: Start wheel gradual rotation FIRST, then ball after wheel reaches speed
+        console.log("🎰 Starting wheel gradual rotation first - FIXED VERSION");
+        console.log("🔍 WheelSync object:", this.wheelSync ? "EXISTS" : "MISSING");
+        console.log("🔍 WheelSync status:", this.wheelSync?.getStatus());
         
-        // Start ball physics - ball is responsible for timing its landing
-        this.ballPhysics.startSpin(winningNumber);
+        this.wheelSync.startGradualRotation(() => {
+            console.log("✅ Wheel reached full speed - NOW starting ball animation for perfect sync");
+            console.log(`🎾 About to start ball physics for winning number: ${winningNumber}`);
+            // Start ball physics ONLY after wheel reaches full speed
+            this.ballPhysics.startSpin(winningNumber);
+            console.log("🎾 Ball physics startSpin called - ball should be visible now");
+        });
     }
 
     /**
