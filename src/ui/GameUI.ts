@@ -1,4 +1,4 @@
-import { Container, Graphics, Text, TextStyle } from "pixi.js";
+import { Container, Graphics, Text, TextStyle ,HTMLText, HTMLTextStyle} from "pixi.js";
 import { Globals } from "../globals";
 import { config } from "../appconfig";
 import { getRouletteProperties, UI_CONFIG } from "../config/GameConfig";
@@ -39,7 +39,7 @@ export class GameUI {
     // Winning Banner
     private winningBanner!: Container;
     private winningBannerBackground!: Graphics;
-    private winningBannerText!: Text;
+    private winningBannerText!: HTMLText;
     private winningBannerVisible: boolean = false;
 
     constructor(container: Container, events: GameUIEvents) {
@@ -549,7 +549,7 @@ private formatCurrentTime(): string {
         this.winningBanner.addChild(this.winningBannerBackground);
 
         // Casino-style celebration text
-        const bannerTextStyle = new TextStyle({
+        const bannerTextStyle = new HTMLTextStyle({
             fontFamily: '"Times New Roman", "Georgia", serif',
             fontSize: 36,
             fontWeight: 'bold',
@@ -566,7 +566,7 @@ private formatCurrentTime(): string {
             letterSpacing: 3
         });
 
-        this.winningBannerText = new Text('🏆 WINNER: 0 🏆', bannerTextStyle);
+        this.winningBannerText = new HTMLText('🏆 WINNER: 0 🏆', bannerTextStyle);
         this.winningBannerText.anchor.set(0.5);
         this.winningBannerText.x = centerX;
         this.winningBannerText.y = centerY - 15;
@@ -1194,93 +1194,91 @@ private formatCurrentTime(): string {
      */
     public showWinningBanner(winningNumber: number): void {
         if (this.winningBannerVisible) return;
-
+    
         this.winningBannerVisible = true;
         this.winningBanner.visible = true;
-
-        // Get complete roulette properties for the winning number
-        const rouletteInfo = getRouletteProperties(winningNumber);
-        const { number, color, parity } = rouletteInfo;
-
-     
-        const parityText = parity === 'None' ? '':`${parity}`;
-        const winningText = `🏆 WINNER: ${number} ${parityText} 🏆`;
-
-        // Update the winning banner text with rich information
+    
+        const { number, color, parity } = getRouletteProperties(winningNumber);
+    
+        // 🎨 Dynamic color values
+        const glowColor = color === 'Red' ? '#FF4444' :
+                          color === 'Black' ? '#000000' :
+                          '#00FF44';
+    
+        const goldColor = '#FFD700'; // for WINNER: and Odd/Even
+    
+        // 🧠 Construct styled rich HTML text
+        const winningText = 
+            `<span style="color:${goldColor}">🏆 WINNER:</span> ` +
+            `<span style="color:${glowColor}">${number}</span>` +
+            (parity !== 'None' ? ` <span style="color:${goldColor}">${parity}</span>` : '') +
+            ` <span style="color:${goldColor}">🏆</span>`;
+    
+        // 📝 Set text and styles
         this.winningBannerText.text = winningText;
-
-       
-
-        // Apply dynamic color with golden accent for elegance
-        this.winningBannerText.style.fill = {color: 0xFFFFFF, alpha: 1}; // Gradient effect
-        this.winningBannerText.style.stroke = { color: 0x000000, width: 3 };
-        
-        // Enhanced drop shadow with color-matching glow
-        this.winningBannerText.style.dropShadow = {
-            color: color === 'Red' ? 0xFF4444 : 
-                  color === 'Black' ? 0x000000 : 
-                  0x00FF44,
-            blur: 12,
-            angle: Math.PI / 4,
-            distance: 4,
-            alpha: 0.8
+        this.winningBannerText.style = {
+            fontFamily: 'Arial',
+            fontSize: 48,
+            fontWeight: 'bold',
+            align: 'center',
+            whiteSpace: 'pre',
+            fill: '#ffffff', // Use CSS-compatible color
         };
-
-        // Spectacular entrance animation with celebration effects
+    
+        // 🎬 Entrance animation
         this.winningBanner.alpha = 0;
         this.winningBanner.scale.set(0.3);
         this.winningBanner.rotation = 0.2;
-        
-        // Main entrance animation
+    
         Globals.gsap?.to(this.winningBanner, {
             alpha: 1,
             rotation: 0,
             duration: 0.8,
             ease: "power3.out"
         });
-
-        // Bouncy scale entrance with extra bounce for winning celebration
+    
         Globals.gsap?.to(this.winningBanner.scale, {
             x: 1,
             y: 1,
             duration: 1.2,
-            ease: "elastic.out(1, 0.4)" // More pronounced bounce for celebration
+            ease: "elastic.out(1, 0.4)"
         });
-
-        // Enhanced celebration pulse animation based on color
-        const pulseScale = color === 'Red' || color === 'Black' ? 1.15 : 1.25; // Extra emphasis for zero
+    
+        // 🎉 Celebration pulsing
+        const pulseScale = color === 'Green' ? 1.25 : 1.15;
         Globals.gsap?.to(this.winningBannerText.scale, {
             x: pulseScale,
             y: pulseScale,
-            duration: color === 'Green' ? 1.2 : 1.5, // Faster pulse for green (zero)
+            duration: color === 'Green' ? 1.2 : 1.5,
             ease: "power2.inOut",
             yoyo: true,
             repeat: -1
         });
-
-        // Subtle floating animation for the banner
+    
+        // 🎈 Floating banner motion
         const originalY = this.winningBanner.position.y;
         Globals.gsap?.to(this.winningBanner.position, {
-            y: originalY - (color === 'Green' ? 15 : 10), // Higher float for zero
+            y: originalY - (color === 'Green' ? 15 : 10),
             duration: 2.5,
             ease: "power1.inOut",
             yoyo: true,
             repeat: -1
         });
-
-        // Enhanced golden glow effect with color-specific intensity
-        const glowIntensity = color === 'Green' ? 0.6 : 0.8; // More intense glow for zero
+    
+        // ✨ Glow pulsation
+        const glowAlpha = color === 'Green' ? 0.6 : 0.8;
         Globals.gsap?.to(this.winningBannerText, {
-            alpha: glowIntensity,
+            alpha: glowAlpha,
             duration: color === 'Green' ? 0.6 : 0.8,
             ease: "power2.inOut",
             yoyo: true,
             repeat: -1
         });
-
-
-        console.log(`🏆 Enhanced winning banner shown: ${number} ${color} ${parity !== 'None' ? parity : ''}`);
+    
+        console.log(`🏆 Enhanced winning banner shown: ${number} ${color} ${parity}`);
     }
+    
+    
 
     /**
      * 🏆 Hide winning banner with smooth animation

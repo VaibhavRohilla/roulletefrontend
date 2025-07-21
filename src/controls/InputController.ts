@@ -31,44 +31,44 @@ export class InputController {
      * 🔧 Setup interaction controls
      */
     private setupControls(): void {
-        this.setupMouseControls();
-        this.setupKeyboardControls();
+        // this.setupMouseControls();
+        // this.setupKeyboardControls();
     }
 
-    /**
-     * 🖱️ Setup mouse/touch controls
-     */
-    private setupMouseControls(): void {
-        // Click to spin
-        this.container.eventMode = 'static';
-        this.container.on('pointerdown', () => {
-            if (Globals.isProd) {
-                console.log("🌐 Server mode: Click ignored - server controls spins");
-                return;
-            }
+    // /**
+    //  * 🖱️ Setup mouse/touch controls
+    //  */
+    // private setupMouseControls(): void {
+    //     // Click to spin
+    //     this.container.eventMode = 'static';
+    //     this.container.on('pointerdown', () => {
+    //         if (Globals.isProd) {
+    //             console.log("🌐 Server mode: Click ignored - server controls spins");
+    //             return;
+    //         }
             
-            if (!this.isSpinning && !this.isCountdownActive) {
-                this.events.onRandomSpin();
-            } else if (this.isCountdownActive) {
-                console.log("⏳ Please wait for countdown to finish before spinning again!");
-            } else if (this.isSpinning) {
-                console.log("🎰 Spin already in progress!");
-            }
-        });
+    //         if (!this.isSpinning && !this.isCountdownActive) {
+    //             this.events.onRandomSpin();
+    //         } else if (this.isCountdownActive) {
+    //             console.log("⏳ Please wait for countdown to finish before spinning again!");
+    //         } else if (this.isSpinning) {
+    //             console.log("🎰 Spin already in progress!");
+    //         }
+    //     });
 
-        console.log("🖱️ Mouse controls configured");
-    }
+    //     console.log("🖱️ Mouse controls configured");
+    // }
 
     /**
      * ⌨️ Setup keyboard controls
      */
-    private setupKeyboardControls(): void {
-        // document.addEventListener('keydown', (event) => {
-        //     this.handleKeyPress(event);
-        // });
+    // private setupKeyboardControls(): void {
+    //     // document.addEventListener('keydown', (event) => {
+    //     //     this.handleKeyPress(event);
+    //     // });
 
-        console.log("⌨️ Keyboard controls configured");
-    }
+    //     console.log("⌨️ Keyboard controls configured");
+    // }
 
     /**
      * 🔑 Handle individual key press

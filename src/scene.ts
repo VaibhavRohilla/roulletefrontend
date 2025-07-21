@@ -8,8 +8,6 @@ export abstract class Scene {
 
 
     sceneContainer: Container;
-
-
     mainContainer: Container;
     // mainBackground: BackgroundGraphic;
     private mainBackground: BackgroundGraphic | BackgroundSprite;

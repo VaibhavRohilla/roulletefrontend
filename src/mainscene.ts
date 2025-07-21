@@ -10,6 +10,7 @@ import { GameNetworkManager } from "./network/GameNetworkManager";
 import { InputController } from "./controls/InputController";
 import { WheelSynchronizer } from "./sync/WheelSynchronizer";
 import { ROULETTE_CONFIG } from "./config/GameConfig";
+import { SoundHandler } from "./soundHandler";
 
 
 /**
@@ -20,7 +21,7 @@ export class MainScene extends Scene {
     // Core game components
     private roulette: RoulleteBoard = new RoulleteBoard();
     private ball!: Sprite;
-    
+
     // Modular systems
     private ballPhysics!: BallPhysics;
     private gameUI!: GameUI;
@@ -34,9 +35,12 @@ export class MainScene extends Scene {
 
     constructor() {
         super(false);
+     
         this.initializeScene();
         this.initializeSystems();
-        this.connectSystems()        
+        this.connectSystems();   
+        Globals.soundHandler = new SoundHandler();
+        this.mainContainer.addChild(Globals.soundHandler);
         console.log("🎯 MainScene orchestrator initialized");
     }
 
@@ -51,11 +55,14 @@ export class MainScene extends Scene {
         rouletteBoard.scale.set(0.7,0.6);
         rouletteBoard.anchor.set(0.5,0);
         rouletteBoard.position.set(this.roulette.position.x , this.roulette.position.y + this.roulette.height/2.4);
+
         // Add roulette board to scene
         this.mainContainer.addChild(this.roulette);
         
         // Create ball sprite
         this.ball = new Sprite(Globals.resources.ball);
+        console.log(this.ball);
+        
         // BALL FIX: Ensure ball is visible and positioned on top of roulette
         this.ball.visible = true;
         this.ball.anchor.set(0.5);
@@ -116,9 +123,9 @@ export class MainScene extends Scene {
 
         // Initialize input system
         this.inputController = new InputController(this.mainContainer, {
-            onSpin: (targetNumber) => this.handleInputSpin(targetNumber),
+            onSpin: (targetNumber: number) => this.handleInputSpin(targetNumber),
             onRandomSpin: () => this.handleInputRandomSpin(),
-            onCountdownStart: (seconds) => this.handleInputCountdownStart(seconds),
+            onCountdownStart: (seconds: number) => this.handleInputCountdownStart(seconds),
             onCountdownStop: () => this.handleInputCountdownStop()
         });
 
@@ -148,6 +155,11 @@ export class MainScene extends Scene {
     private handleSpinComplete(winningNumber: number): void {
         this.isSpinning = false;
         this.updateGameState();
+        
+        // 🔊 SOUND INTEGRATION: Trigger spin completion sound
+        if (Globals.soundHandler && typeof Globals.soundHandler.onSpinComplete === 'function') {
+            Globals.soundHandler.onSpinComplete(winningNumber);
+        }
         
         // Check actual winner
         const actualWinner = this.roulette.getCurrentWinningNumber();
@@ -389,6 +401,12 @@ export class MainScene extends Scene {
         this.wheelSync.startGradualRotation(() => {
             console.log("✅ Wheel reached full speed - NOW starting ball animation for perfect sync");
             console.log(`🎾 About to start ball physics for winning number: ${winningNumber}`);
+            
+            // 🔊 SOUND INTEGRATION: Start spin state for sound effects
+            if (Globals.soundHandler && typeof Globals.soundHandler.startSpin === 'function') {
+                Globals.soundHandler.startSpin();
+            }
+            
             // Start ball physics ONLY after wheel reaches full speed
             this.ballPhysics.startSpin(winningNumber);
             console.log("🎾 Ball physics startSpin called - ball should be visible now");

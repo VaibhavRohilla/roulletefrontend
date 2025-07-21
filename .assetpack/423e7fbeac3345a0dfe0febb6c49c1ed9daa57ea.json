@@ -6,8 +6,8 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1752927531088,
-                "duration": 1.2255000000586733,
+                "date": 1753122512702,
+                "duration": 2.3276999997906387,
                 "success": true
             }
         },
@@ -18,8 +18,8 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1752927531088,
-                "duration": 1.2201999999815598,
+                "date": 1753104403797,
+                "duration": 25.84569999999985,
                 "success": true
             }
         },
@@ -39,6 +39,46 @@
         "D:/Freelnace/roulletefrontend/public/assets/assets/GameBG.png": {
             "isFolder": false,
             "transformParent": "D:/Freelnace/roulletefrontend/raw-assets/assets/GameBG.png",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {}
+        },
+        "D:/Freelnace/roulletefrontend/raw-assets/assets/MusicOff.png": {
+            "isFolder": false,
+            "parent": "D:/Freelnace/roulletefrontend/raw-assets/assets",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {},
+            "stats": {
+                "date": 1753104403797,
+                "duration": 25.94470000000001,
+                "success": true
+            },
+            "hash": "h3MC-Q"
+        },
+        "D:/Freelnace/roulletefrontend/public/assets/assets/MusicOff.png": {
+            "isFolder": false,
+            "transformParent": "D:/Freelnace/roulletefrontend/raw-assets/assets/MusicOff.png",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {}
+        },
+        "D:/Freelnace/roulletefrontend/raw-assets/assets/MusicOn.png": {
+            "isFolder": false,
+            "parent": "D:/Freelnace/roulletefrontend/raw-assets/assets",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {},
+            "stats": {
+                "date": 1753104403806,
+                "duration": 17.75949999999989,
+                "success": true
+            },
+            "hash": "3mO8yA"
+        },
+        "D:/Freelnace/roulletefrontend/public/assets/assets/MusicOn.png": {
+            "isFolder": false,
+            "transformParent": "D:/Freelnace/roulletefrontend/raw-assets/assets/MusicOn.png",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {}
@@ -211,6 +251,86 @@
         "D:/Freelnace/roulletefrontend/public/assets/assets/table.png": {
             "isFolder": false,
             "transformParent": "D:/Freelnace/roulletefrontend/raw-assets/assets/table.png",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {}
+        },
+        "D:/Freelnace/roulletefrontend/raw-assets/ball-damping.mp3": {
+            "isFolder": false,
+            "parent": "D:/Freelnace/roulletefrontend/raw-assets",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {},
+            "stats": {
+                "date": 1753122512702,
+                "duration": 2.3403000002726912,
+                "success": true
+            },
+            "hash": "roazvQ"
+        },
+        "D:/Freelnace/roulletefrontend/public/assets/ball-damping.mp3": {
+            "isFolder": false,
+            "transformParent": "D:/Freelnace/roulletefrontend/raw-assets/ball-damping.mp3",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {}
+        },
+        "D:/Freelnace/roulletefrontend/raw-assets/bgMusic.mp3": {
+            "isFolder": false,
+            "parent": "D:/Freelnace/roulletefrontend/raw-assets",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {},
+            "stats": {
+                "date": 1753104403813,
+                "duration": 10.389599999999973,
+                "success": true
+            },
+            "hash": "wlPfVg"
+        },
+        "D:/Freelnace/roulletefrontend/public/assets/bgMusic.mp3": {
+            "isFolder": false,
+            "transformParent": "D:/Freelnace/roulletefrontend/raw-assets/bgMusic.mp3",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {}
+        },
+        "D:/Freelnace/roulletefrontend/raw-assets/endspiner.mp3": {
+            "isFolder": false,
+            "parent": "D:/Freelnace/roulletefrontend/raw-assets",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {},
+            "stats": {
+                "date": 1753119940501,
+                "duration": 9.17249999998603,
+                "success": true
+            },
+            "hash": "lZ1oKQ"
+        },
+        "D:/Freelnace/roulletefrontend/public/assets/endspiner.mp3": {
+            "isFolder": false,
+            "transformParent": "D:/Freelnace/roulletefrontend/raw-assets/endspiner.mp3",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {}
+        },
+        "D:/Freelnace/roulletefrontend/raw-assets/startSpinner.mp3": {
+            "isFolder": false,
+            "parent": "D:/Freelnace/roulletefrontend/raw-assets",
+            "metaData": {},
+            "inheritedMetaData": {},
+            "transformData": {},
+            "stats": {
+                "date": 1753119945026,
+                "duration": 9.943399999989197,
+                "success": true
+            },
+            "hash": "oE7BSQ"
+        },
+        "D:/Freelnace/roulletefrontend/public/assets/startSpinner.mp3": {
+            "isFolder": false,
+            "transformParent": "D:/Freelnace/roulletefrontend/raw-assets/startSpinner.mp3",
             "metaData": {},
             "inheritedMetaData": {},
             "transformData": {}

@@ -49,7 +49,7 @@ export class Game {
       }
       this.setupCanvasStyles();
       this.setupResizeHandler();
-
+      this.setupVisibilityHandler();
       console.log("Application initialized, starting loading...");
       
       await this.startLoading();
@@ -77,6 +77,40 @@ export class Game {
     canvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
   }
+  private setupVisibilityHandler(): void {
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        // Pause background music when tab is hidden
+        Globals.soundHandler?.startStopBGMusic(false);
+        
+        // Stop all roulette sounds when tab is hidden
+        Globals.soundHandler?.stopAllRouletteSounds();
+        
+      } else if (document.visibilityState === "visible") {
+        console.log("isSoundOn", Globals.soundHandler?.isSoundOn);
+        
+        if (Globals.soundHandler?.isSoundOn) {
+          // Resume background music if it was playing
+          if (!Globals.soundHandler?.isBgMusicPlaying) {
+            Globals.soundHandler?.startStopBGMusic(true);
+          }
+          
+          // 🔊 IMPROVED: Only resume spin sounds if there's an active spin
+          // Don't automatically start spin sounds - they should only play during actual spins
+          if (Globals.soundHandler?.isSpinCurrentlyActive && 
+              typeof Globals.soundHandler.isSpinCurrentlyActive === 'function') {
+            
+            const isSpinActive = Globals.soundHandler.isSpinCurrentlyActive();
+            console.log("Tab visible - spin active:", isSpinActive);
+            
+            // Note: Individual spin sound effects will be triggered by ball physics phases
+            // We don't need to manually restart them here
+          }
+        }
+      }
+    });
+  }
+  
 
   private setupResizeHandler(): void {
     const resizeHandler = () => {

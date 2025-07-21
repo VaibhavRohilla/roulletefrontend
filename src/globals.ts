@@ -4,6 +4,7 @@ import { Howl } from "howler";
 import { gsap } from "gsap";
 import { isMobile } from "pixi.js";
 import { MyEmitter } from "./myemitter";
+import { SoundHandler } from "./soundHandler";
 
 export interface globalDataType {
   resources: any;
@@ -15,6 +16,7 @@ export interface globalDataType {
   soundResources: { [key: string]: Howl };
   gsap: typeof gsap | undefined;
   isProd: boolean;
+  soundHandler: SoundHandler | undefined;
 }
 
 export const Globals: globalDataType = {
@@ -29,5 +31,6 @@ export const Globals: globalDataType = {
   app: undefined,
   soundResources: {},
   gsap: undefined,
-  isProd: true, // Set to false for development testing
+  isProd: false, // Set to false for development testing
+  soundHandler: undefined,
 };

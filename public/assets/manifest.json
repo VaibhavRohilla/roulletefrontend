@@ -19,6 +19,34 @@
         },
         {
           "alias": [
+            "assets/MusicOff.png",
+            "assets/MusicOff",
+            "MusicOff.png",
+            "MusicOff"
+          ],
+          "src": [
+            "assets/MusicOff.png"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
+            "assets/MusicOn.png",
+            "assets/MusicOn",
+            "MusicOn.png",
+            "MusicOn"
+          ],
+          "src": [
+            "assets/MusicOn.png"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
             "assets/NumberCircle.png",
             "assets/NumberCircle",
             "NumberCircle.png",
@@ -124,6 +152,54 @@
           ],
           "src": [
             "assets/table.png"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
+            "ball-damping.mp3",
+            "ball-damping"
+          ],
+          "src": [
+            "ball-damping.mp3"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
+            "bgMusic.mp3",
+            "bgMusic"
+          ],
+          "src": [
+            "bgMusic.mp3"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
+            "endspiner.mp3",
+            "endspiner"
+          ],
+          "src": [
+            "endspiner.mp3"
+          ],
+          "data": {
+            "tags": {}
+          }
+        },
+        {
+          "alias": [
+            "startSpinner.mp3",
+            "startSpinner"
+          ],
+          "src": [
+            "startSpinner.mp3"
           ],
           "data": {
             "tags": {}

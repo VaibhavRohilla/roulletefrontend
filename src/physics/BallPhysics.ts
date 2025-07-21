@@ -116,18 +116,25 @@ export class BallPhysics {
         }
 
         console.log(`🚀 Starting SMOOTH Ball Physics for target NUMBER: ${winningNumber}`);
+        console.log(`🔊 SOUND STATE: Spin should already be active from MainScene.startSpin()`);
         
         this.isSpinning = true;
         this.targetWinningNumber = winningNumber;
         this.ball.visible = true;
         this.currentPhase = 'launching';
         
-        this.stopAllAnimations();
+        // 🔊 SOUND FIX: Don't end spin state when stopping previous animations
+        this.stopAllAnimationsWithoutEndingSpin();
         this.preserveCurrentPosition();
         this.determineBallDirection();
         
-        // Start the smooth 6-phase animation
+        // Start the smooth 6-phase animation first
         this.executePhase1_SmoothLaunch();
+        
+        // 🔊 SOUND INTEGRATION: Trigger sound after a small delay to ensure spin state is set
+        setTimeout(() => {
+            this.triggerSoundEffect('launching', 0);
+        }, 50);
     }
 
     /**
@@ -313,6 +320,7 @@ export class BallPhysics {
         console.log("⬇️ Phase 4: Smooth Gravity Fall");
         this.currentPhase = 'falling';
         this.events.onPhaseChanged('falling', 0);
+        this.triggerSoundEffect('falling', 0);
         
         const fallDuration = 0.8;
         const startRadius = this.ballRadius;
@@ -360,6 +368,7 @@ export class BallPhysics {
         console.log("🏀 Phase 5: Smooth Bounce & Settle");
         this.currentPhase = 'bouncing';
         this.events.onPhaseChanged('bouncing', 0);
+        this.triggerSoundEffect('bouncing', 0);
         
         const bounceCount = 3;
         const bounceDuration = 1.2;
@@ -479,6 +488,7 @@ export class BallPhysics {
         console.log("🎯 Phase 7: Gradual Capture - Ball slowing down, target pocket approaching");
         this.currentPhase = 'gradual_capture';
         this.events.onPhaseChanged('gradual_capture', 0);
+        this.triggerSoundEffect('gradual_capture', 0);
         
         const captureStartTime = Date.now();
         const maxCaptureTime = 3.0; // Maximum time for capture process
@@ -739,6 +749,12 @@ export class BallPhysics {
         
         this.isSpinning = false;
         this.currentPhase = 'settled';
+        this.triggerSoundEffect('settled', 1);
+        
+        // 🔊 SOUND INTEGRATION: Properly end spin state when ball is settled
+        if (Globals.soundHandler && typeof Globals.soundHandler.endSpin === 'function') {
+            Globals.soundHandler.endSpin();
+        }
         
         console.log(`🏁 Ball finalized in target number ${this.targetWinningNumber} pocket (no teleporting - gradually captured by Phase 7)`);
         console.log(`📍 Target number angle: ${(targetAngle * 180 / Math.PI).toFixed(2)}°`);
@@ -757,6 +773,30 @@ export class BallPhysics {
         console.log(`✅ PERFECT CASINO TIMING: Ball landed exactly when ${this.targetWinningNumber} was at top - current winner: ${currentWinner}`);
         
         console.log("🎰 Real casino roulette physics complete - wheel continues spinning for next round");
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 🔊 SOUND INTEGRATION METHODS
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    /**
+     * 🔊 Trigger sound effects based on ball physics phases
+     * @param phase - Current physics phase
+     * @param progress - Phase progress (0-1)
+     */
+    private triggerSoundEffect(phase: string, progress: number): void {
+        console.log(`🔊 BallPhysics.triggerSoundEffect called: phase=${phase}, progress=${progress}`);
+        console.log(`🔍 Globals.soundHandler exists:`, !!Globals.soundHandler);
+        
+        if (Globals.soundHandler && typeof Globals.soundHandler.onBallPhysicsPhaseChanged === 'function') {
+            console.log(`🔊 Calling soundHandler.onBallPhysicsPhaseChanged`);
+            Globals.soundHandler.onBallPhysicsPhaseChanged(phase, progress);
+        } else {
+            console.error(`❌ soundHandler not available or method missing:`, {
+                soundHandlerExists: !!Globals.soundHandler,
+                methodExists: Globals.soundHandler ? typeof Globals.soundHandler.onBallPhysicsPhaseChanged === 'function' : false
+            });
+        }
     }
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -781,7 +821,38 @@ export class BallPhysics {
         Globals.gsap?.killTweensOf(this.ball.position);
         Globals.gsap?.killTweensOf(this.ball.scale);
         
+        // 🔊 SOUND INTEGRATION: End spin state when animations stop
+        if (this.isSpinning && Globals.soundHandler && typeof Globals.soundHandler.endSpin === 'function') {
+            Globals.soundHandler.endSpin();
+        }
+        
+        this.isSpinning = false;
+        this.currentPhase = 'idle';
+        
         console.log("🔄 All ball animations stopped cleanly");
+    }
+
+    /**
+     * 🔄 Stop all animations WITHOUT ending spin state (for sound fix)
+     */
+    private stopAllAnimationsWithoutEndingSpin(): void {
+        if (this.animationTimeline) {
+            this.animationTimeline.kill();
+            this.animationTimeline = null;
+        }
+        if (this.currentTween) {
+            this.currentTween.kill();
+            this.currentTween = null;
+        }
+
+        Globals.gsap?.killTweensOf(this.ball);
+        Globals.gsap?.killTweensOf(this.ball.position);
+        Globals.gsap?.killTweensOf(this.ball.scale);
+        
+        // 🔊 SOUND FIX: Don't end spin state - let the physics manage it
+        // Don't set isSpinning = false or call soundHandler.endSpin()
+        
+        console.log("🔄 Ball animations stopped (preserving spin state for sound system)");
     }
 
 
