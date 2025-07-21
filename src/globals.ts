@@ -31,6 +31,6 @@ export const Globals: globalDataType = {
   app: undefined,
   soundResources: {},
   gsap: undefined,
-  isProd: false, // Set to false for development testing
+  isProd: true, // Set to false for development testing
   soundHandler: undefined,
 };

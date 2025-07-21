@@ -488,7 +488,7 @@ private formatCurrentTime(): string {
             letterSpacing: 2
         });
 
-        this.noGamesBannerText = new Text('🎰 NO CURRENT GAMES 🎰', bannerTextStyle);
+        this.noGamesBannerText = new Text('🎰NO CURRENT GAMES🎰', bannerTextStyle);
         this.noGamesBannerText.anchor.set(0.5);
         this.noGamesBannerText.x = centerX;
         this.noGamesBannerText.y = centerY - 10;
@@ -1218,7 +1218,7 @@ private formatCurrentTime(): string {
         this.winningBannerText.text = winningText;
         this.winningBannerText.style = {
             fontFamily: 'Arial',
-            fontSize: 48,
+            fontSize: 36,
             fontWeight: 'bold',
             align: 'center',
             whiteSpace: 'pre',
