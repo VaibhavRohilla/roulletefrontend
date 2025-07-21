@@ -3,7 +3,7 @@ import { Globals } from "../globals";
 export interface GameCycleEvents {
     onRoundStart: (timeLeft: number) => void;
     onSpinTrigger: (spinIndex: number) => void;
-    onNoGames: () => void;
+    onNoGames: (lastSpinResult?: {spin_number: number, color: string, parity: string, timestamp: string}) => void;
     onGameResumed: () => void;
     onConnectionError: () => void;
     onConnectionRestored: () => void;
@@ -15,6 +15,12 @@ export interface APIGameState {
     spinIndex?: number;
     roundStartTime?: string;
     roundDuration?: number;
+    lastSpinResult?: {
+        spin_number: number;
+        color: string;
+        parity: string;
+        timestamp: string;
+    };
 }
 
 /**
@@ -261,9 +267,10 @@ export class GameCycleManager {
      * 💤 Handle idle state (no active round or spin)
      */
     private handleIdleState(): void {
-        console.log("💤 Idle state detected - showing no games banner");
+        const lastSpinInfo = this.lastGameState?.lastSpinResult;
+        console.log("💤 Idle state detected - showing no games banner", lastSpinInfo ? `with last spin: ${lastSpinInfo.spin_number}` : 'no last spin');
         this.stopPolling(); // Temporarily stop polling
-        this.events.onNoGames();
+        this.events.onNoGames(lastSpinInfo);
         
         // Resume polling after short delay
         setTimeout(() => {

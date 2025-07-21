@@ -73,6 +73,7 @@ export class BackgroundSprite extends PIXI.Sprite {
         Graphics.rect(0, 0, this.width, this.height);
         Graphics.fill(0x000000);
         Graphics.alpha = 0.2;
+        this.allowChildren = true;
         this.addChild(Graphics);
 
         this.width = width;

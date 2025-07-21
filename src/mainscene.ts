@@ -34,14 +34,11 @@ export class MainScene extends Scene {
 
     constructor() {
         super(false);
-        // rouletteBoard.alpha = 0.1;
-        // rouletteBoard.blendMode = 'multiply';
         this.initializeScene();
         this.initializeSystems();
         this.connectSystems();
+       
         
-        // Show "No Games" banner by default until connected to backend
-        // this.gameUI.showNoGamesBanner();
         
         console.log("🎯 MainScene orchestrator initialized");
     }
@@ -55,8 +52,8 @@ export class MainScene extends Scene {
         rouletteBoard.anchor.set(0.5);
 
         rouletteBoard.scale.set(0.7,0.6);
-        rouletteBoard.anchor.set(0.5);
-        rouletteBoard.position.set(this.roulette.position.x , this.roulette.position.y + this.roulette.height/2.5);
+        rouletteBoard.anchor.set(0.5,0);
+        rouletteBoard.position.set(this.roulette.position.x , this.roulette.position.y + this.roulette.height/2.4);
         // Add roulette board to scene
         this.mainContainer.addChild(this.roulette);
         
@@ -116,7 +113,7 @@ export class MainScene extends Scene {
             onError: (error) => this.handleNetworkError(error),
             onRoundStart: (timeLeft) => this.handleAPIRoundStart(timeLeft),
             onServerSpin: (spinIndex) => this.handleAPIServerSpin(spinIndex),
-            onNoGames: () => this.handleNoGames(),
+            onNoGames: (lastSpinResult) => this.handleNoGames(lastSpinResult),
             onGameResumed: () => this.handleGameResumed()
         });
 
@@ -232,16 +229,16 @@ export class MainScene extends Scene {
         console.log("🌐 API connected - polling-based game mode activated");
     }
 
-    private handleNetworkDisconnected(): void {
+    private async handleNetworkDisconnected(): Promise<void> {
         this.gameUI.updateConnectionStatus('DISCONNECTED');
-        this.gameUI.showNoGamesBanner(); // Show banner when disconnected
+        await this.gameUI.showNoGamesBanner(); // Show banner when disconnected
         this.updateGameState();
         console.log("🔴 API disconnected - manual mode activated");
     }
 
-    private handleNetworkError(error: any): void {
+    private async handleNetworkError(error: any): Promise<void> {
         this.gameUI.updateConnectionStatus('ERROR');
-        this.gameUI.showNoGamesBanner(); // Show banner on error
+        await this.gameUI.showNoGamesBanner(); // Show banner on error
         console.error("❌ API connection error:", error);
     }
 
@@ -310,8 +307,8 @@ export class MainScene extends Scene {
     /**
      * 💤 Handle no games state
      */
-    private handleNoGames(): void {
-        console.log('💤 No active games - showing banner');
+    private async handleNoGames(lastSpinResult?: {spin_number: number, color: string, parity: string, timestamp: string}): Promise<void> {
+        console.log('💤 No active games - showing banner', lastSpinResult ? `with last spin: ${lastSpinResult.spin_number}` : 'no last spin');
         
         // Stop any current spin or countdown
         if (this.isSpinning) {
@@ -321,7 +318,7 @@ export class MainScene extends Scene {
         }
         
         this.gameUI.stopCountdown();
-        this.gameUI.showNoGamesBanner();
+        await this.gameUI.showNoGamesBanner(lastSpinResult);
     }
 
     /**

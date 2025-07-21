@@ -6,7 +6,7 @@ export interface GameNetworkEvents {
     onError: (error: any) => void;
     onRoundStart: (timeLeft: number) => void;
     onServerSpin: (spinIndex: number) => void;
-    onNoGames: () => void;
+    onNoGames: (lastSpinResult?: {spin_number: number, color: string, parity: string, timestamp: string}) => void;
     onGameResumed: () => void;
 }
 
@@ -26,7 +26,7 @@ export class GameNetworkManager {
         this.gameCycleManager = new GameCycleManager({
             onRoundStart: (timeLeft: number) => this.handleRoundStart(timeLeft),
             onSpinTrigger: (spinIndex: number) => this.handleSpinTrigger(spinIndex),
-            onNoGames: () => this.handleNoGames(),
+            onNoGames: (lastSpinResult) => this.handleNoGames(lastSpinResult),
             onGameResumed: () => this.handleGameResumed(),
             onConnectionError: () => this.handleConnectionError(),
             onConnectionRestored: () => this.handleConnectionRestored()
@@ -83,9 +83,9 @@ export class GameNetworkManager {
     /**
      * 💤 Handle no games state
      */
-    private handleNoGames(): void {
-        console.log('💤 No active games detected via API');
-        this.events.onNoGames();
+    private handleNoGames(lastSpinResult?: {spin_number: number, color: string, parity: string, timestamp: string}): void {
+        console.log('💤 No active games detected via API', lastSpinResult ? `with last spin: ${lastSpinResult.spin_number}` : 'no last spin');
+        this.events.onNoGames(lastSpinResult);
     }
 
     /**

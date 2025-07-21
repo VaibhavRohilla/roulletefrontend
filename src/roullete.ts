@@ -2,6 +2,7 @@ import { Container, Sprite } from "pixi.js";
 import { Globals } from "./globals";
 import { config } from "./appconfig";
 import { TextLabel } from "./textlabel";
+import { blackNumbers, redNumbers, rouletteNumbers } from "./config/GameConfig";
 
 
 // ⚙️ ROULETTE WHEEL CONFIGURATION
@@ -37,16 +38,7 @@ export class RoulleteBoard extends Container {
     
 
     
-    // European roulette wheel layout (37 numbers: 0-36)
-    // Numbers arranged in clockwise order starting from 0 at the top
-    private readonly rouletteNumbers = [
-        0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26
-    ];
-    
-    // Define red and black numbers for European roulette
-    private readonly redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
-    private readonly blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
-
+   
     constructor() {
         super();
         this.initializeWheel();
@@ -128,7 +120,7 @@ export class RoulleteBoard extends Container {
         const centerX = this.roullete.position.x;
         const centerY = this.roullete.position.y;
         
-        this.rouletteNumbers.forEach((number, index) => {
+        rouletteNumbers.forEach((number, index) => {
             // Calculate precise angle for each number (starting from top, going clockwise)
             const angle = this.getAngleForIndex(index);
             
@@ -165,9 +157,9 @@ export class RoulleteBoard extends Container {
     private getNumberColor(number: number): number {
         if (number === 0) {
             return WHEEL_CONFIG.greenColor; // Green for zero
-        } else if (this.redNumbers.includes(number)) {
+        } else if (redNumbers.includes(number)) {
             return WHEEL_CONFIG.textColor; // White text on red background
-        } else if (this.blackNumbers.includes(number)) {
+        } else if (blackNumbers.includes(number)) {
             return WHEEL_CONFIG.textColor; // White text on black background
         }
         return WHEEL_CONFIG.textColor; // Default white
@@ -179,7 +171,7 @@ export class RoulleteBoard extends Container {
      * @returns Angle in radians
      */
     private getAngleForIndex(index: number): number {
-        const totalNumbers = this.rouletteNumbers.length;
+        const totalNumbers = rouletteNumbers.length;
         const anglePerNumber = (2 * Math.PI) / totalNumbers;
         // Start from top (-π/2) and go clockwise
         return (index * anglePerNumber) - (Math.PI / 2);
@@ -192,7 +184,7 @@ export class RoulleteBoard extends Container {
      * @returns The angle in radians where this number is positioned
      */
     public getAngleForNumber(targetNumber: number): number {
-        const index = this.rouletteNumbers.indexOf(targetNumber);
+        const index = rouletteNumbers.indexOf(targetNumber);
         if (index === -1) {
             console.warn(`Number ${targetNumber} not found on wheel`);
             return 0;
@@ -236,7 +228,7 @@ export class RoulleteBoard extends Container {
         let closestIndex = 0;
         let minDifference = Infinity;
         
-        for (let i = 0; i < this.rouletteNumbers.length; i++) {
+        for (let i = 0; i < rouletteNumbers.length; i++) {
             const numberLocalAngle = this.getAngleForIndex(i);
             
             // Calculate angular difference (handle wraparound)
@@ -251,7 +243,7 @@ export class RoulleteBoard extends Container {
             }
         }
         
-        const winningNumber = this.rouletteNumbers[closestIndex];
+        const winningNumber = rouletteNumbers[closestIndex];
         // const winningAngle = this.getAngleForIndex(closestIndex);
         
         // Verify: where does this number actually appear after rotation?
@@ -276,7 +268,7 @@ export class RoulleteBoard extends Container {
      * @returns Array index of the number
      */
     public getIndexForNumber(number: number): number {
-        return this.rouletteNumbers.indexOf(number);
+        return rouletteNumbers.indexOf(number);
     }
     
     /**
@@ -284,7 +276,7 @@ export class RoulleteBoard extends Container {
      * @returns Copy of the roulette numbers array
      */
     public getRouletteNumbers(): readonly number[] {
-        return [...this.rouletteNumbers];
+        return [...rouletteNumbers];
     }
     
     /**
@@ -293,7 +285,7 @@ export class RoulleteBoard extends Container {
      * @returns True if red, false otherwise
      */
     public isRedNumber(number: number): boolean {
-        return this.redNumbers.includes(number);
+        return redNumbers.includes(number);
     }
     
     /**
@@ -302,7 +294,7 @@ export class RoulleteBoard extends Container {
      * @returns True if black, false otherwise
      */
     public isBlackNumber(number: number): boolean {
-        return this.blackNumbers.includes(number);
+        return blackNumbers.includes(number);
     }
     
     /**
@@ -319,7 +311,7 @@ export class RoulleteBoard extends Container {
      * @returns Total pocket count (37 for European roulette)
      */
     public getPocketCount(): number {
-        return this.rouletteNumbers.length;
+        return rouletteNumbers.length;
     }
     
     /**
@@ -327,7 +319,7 @@ export class RoulleteBoard extends Container {
      * @returns Angle in radians between consecutive pockets
      */
     public getAnglePerPocket(): number {
-        return (2 * Math.PI) / this.rouletteNumbers.length;
+        return (2 * Math.PI) / rouletteNumbers.length;
     }
     
     /**
@@ -336,7 +328,7 @@ export class RoulleteBoard extends Container {
      * @returns True if valid, false otherwise
      */
     public isValidNumber(number: number): boolean {
-        return this.rouletteNumbers.includes(number);
+        return rouletteNumbers.includes(number);
     }
     
     /**

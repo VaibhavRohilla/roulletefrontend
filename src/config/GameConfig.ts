@@ -44,7 +44,33 @@ export const ROULETTE_CONFIG = {
     // Automatic countdown after each spin
     autoCountdownDuration: 15 // seconds to wait before next spin is allowed
 } as const;
+ // European roulette wheel layout (37 numbers: 0-36)
+    // Numbers arranged in clockwise order starting from 0 at the top
+    export const rouletteNumbers = [
+        0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26
+    ];
+    
+    // Define red and black numbers for European roulette
+    export const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+    export const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
 
+    export function getRouletteProperties(number: number) {
+        const red = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+        const black = new Set([2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35]);
+    
+        const color = red.has(number)
+            ? 'Red'
+            : black.has(number)
+            ? 'Black'
+            : 'Green';
+    
+        const parity = number === 0
+            ? 'None'
+            : (number % 2 === 0 ? 'Even' : 'Odd'); // 💡 even or odd check here
+    
+        return { number, color, parity };
+    }
+    
 // ⏰ UI CONFIGURATION
 export const UI_CONFIG = {
     // Time Display

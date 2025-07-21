@@ -1,7 +1,7 @@
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
 import { Globals } from "../globals";
 import { config } from "../appconfig";
-import { UI_CONFIG } from "../config/GameConfig";
+import { getRouletteProperties, UI_CONFIG } from "../config/GameConfig";
 
 
 export interface GameUIEvents {
@@ -127,14 +127,12 @@ export class GameUI {
         graphics.fill({ color: 0x000000, alpha: 0.4 });
 
         // Main casino green background with gradient effect
-        graphics.beginFill(0x0D4F3C, 0.8); // Semi-transparent casino green
         graphics.roundRect(0, 0, width, height, radius);
-        graphics.endFill();
+        graphics.fill({color: 0x0D4F3C, alpha: 0.8}); // Semi-transparent casino green
 
         // Inner highlight for depth
-        graphics.beginFill(0x1A6B4F, 0.4); // Lighter green
         graphics.roundRect(2, 2, width - 4, height / 3, radius - 1);
-        graphics.endFill();
+        graphics.fill({color: 0x1A6B4F, alpha: 0.4}); // Lighter green
 
         // Elegant golden border
         graphics.lineStyle(2, 0xFFD700, 0.8); // Gold border
@@ -299,14 +297,12 @@ private formatCurrentTime(): string {
         this.countdownBackground.fill({color: 0x000000, alpha: 0.8});
 
         // Main casino green background with gradient effect
-        this.countdownBackground.beginFill(0x0D4F3C, 0.95); // Deep casino green
         this.countdownBackground.roundRect(0, 0, countdownConfig.containerWidth, countdownConfig.containerHeight, countdownConfig.borderRadius);
-        this.countdownBackground.endFill();
+        this.countdownBackground.fill({color: 0x0D4F3C, alpha: 0.95}); // Deep casino green
 
         // Inner gradient highlight for depth
-        this.countdownBackground.beginFill(0x1A6B4F, 0.6); // Lighter green
         this.countdownBackground.roundRect(4, 4, countdownConfig.containerWidth - 8, countdownConfig.containerHeight / 3, countdownConfig.borderRadius - 4);
-        this.countdownBackground.endFill();
+        this.countdownBackground.fill({color: 0x1A6B4F, alpha: 0.6}); // Lighter green
 
         // Elegant golden border with glow effect
         this.countdownBackground.lineStyle(4, currentBorderColor, 1);
@@ -410,14 +406,12 @@ private formatCurrentTime(): string {
         graphics.fill({ color: 0x000000, alpha: 0.3 });
 
         // Main casino green background
-        graphics.beginFill(0x0D4F3C, 0.7); // Semi-transparent casino green
         graphics.roundRect(0, 0, width, height, radius);
-        graphics.endFill();
+        graphics.fill({color: 0x0D4F3C, alpha: 0.7}); // Semi-transparent casino green
 
         // Inner highlight
-        graphics.beginFill(0x1A6B4F, 0.3); // Lighter green
         graphics.roundRect(2, 2, width - 4, height / 3, radius - 1);
-        graphics.endFill();
+        graphics.fill({color: 0x1A6B4F, alpha: 0.3}); // Lighter green
 
         // Elegant golden border
         graphics.lineStyle(1.5, 0xFFD700, 0.7); // Gold border
@@ -596,7 +590,7 @@ private formatCurrentTime(): string {
 
         // Set pivot point to center for proper scaling animations
         this.winningBanner.pivot.set(centerX, centerY);
-        this.winningBanner.position.set(centerX, centerY);
+        this.winningBanner.position.set(centerX, centerY*1.5);
 
         // Initially hidden
         this.winningBanner.visible = false;
@@ -616,14 +610,12 @@ private formatCurrentTime(): string {
         this.noGamesBannerBackground.fill({ color: 0x000000, alpha: 0.6 });
 
         // Main background with casino green gradient effect
-        this.noGamesBannerBackground.beginFill(0x0D4F3C); // Dark casino green
         this.noGamesBannerBackground.roundRect(0, 0, width, height, 15);
-        this.noGamesBannerBackground.endFill();
+        this.noGamesBannerBackground.fill({color: 0x0D4F3C, alpha: 0.7}); // Dark casino green
 
         // Inner gradient highlight
-        this.noGamesBannerBackground.beginFill(0x1A6B4F, 0.7); // Lighter green
         this.noGamesBannerBackground.roundRect(2, 2, width - 4, height / 3, 13);
-        this.noGamesBannerBackground.endFill();
+        this.noGamesBannerBackground.fill({color: 0x1A6B4F, alpha: 0.7}); // Lighter green
 
         // Golden border with casino elegance
         this.noGamesBannerBackground.lineStyle(3, 0xFFD700, 1); // Gold border
@@ -681,14 +673,12 @@ private formatCurrentTime(): string {
         this.winningBannerBackground.fill({ color: 0x000000, alpha: 0.7 });
 
         // Main celebration background with golden gradient effect
-        this.winningBannerBackground.beginFill(0x8B4513); // Rich brown/bronze base
         this.winningBannerBackground.roundRect(0, 0, width, height, 15);
-        this.winningBannerBackground.endFill();
+        this.winningBannerBackground.fill({color: 0x8B4513, alpha: 1}); // Rich brown/bronze base
 
         // Inner gradient highlight for celebration glow
-        this.winningBannerBackground.beginFill(0xFFD700, 0.3); // Golden highlight
         this.winningBannerBackground.roundRect(2, 2, width - 4, height / 3, 13);
-        this.winningBannerBackground.endFill();
+        this.winningBannerBackground.fill({color: 0xFFD700, alpha: 0.3}); // Golden highlight
 
         // Celebration golden border
         this.winningBannerBackground.lineStyle(4, 0xFFD700, 1); // Thicker gold border for celebration
@@ -1016,13 +1006,18 @@ private formatCurrentTime(): string {
     }
 
     /**
-     * 🎰 Show "No Current Games" banner with elegant animation
+     * 🎰 Show "No Current Games" banner with elegant casino styling and last spin results
      */
-    public showNoGamesBanner(): void {
+    public async showNoGamesBanner(lastSpinResult?: {spin_number: number, color: string, parity: string, timestamp: string}): Promise<void> {
         if (this.bannerVisible) return;
 
         this.bannerVisible = true;
         this.noGamesBanner.visible = true;
+
+        // Update banner with last spin result if provided, otherwise fetch from backend
+        if (lastSpinResult) {
+            this.updateBannerWithLastSpin(lastSpinResult);
+        }
 
         // Elegant entrance animation
         this.noGamesBanner.alpha = 0;
@@ -1051,7 +1046,111 @@ private formatCurrentTime(): string {
             repeat: -1
         });
 
-        console.log("🎰 No Games banner shown");
+        console.log("🎰 No Games banner shown with last spin results");
+    }
+
+   
+
+
+    /**
+     * 🎯 Update banner with provided last spin result
+     */
+    private updateBannerWithLastSpin(lastSpinResult: {spin_number: number, color: string, parity: string, timestamp: string}): void {
+        console.log(`🎯 Updating banner with last spin: ${lastSpinResult.spin_number} ${lastSpinResult.color} ${lastSpinResult.parity}`);
+        
+        // Remove any existing results display
+        const existingResults = this.noGamesBanner.children.find(child => 
+            (child as any).label === 'lastSpinResults'
+        );
+        if (existingResults) {
+            this.noGamesBanner.removeChild(existingResults);
+        }
+
+        // Create elegant results display container for single result
+        const resultsContainer = new Container();
+        (resultsContainer as any).label = 'lastSpinResults';
+
+        const centerX = this.noGamesBanner.position.x ;
+        const centerY = this.noGamesBanner.position.y ;
+
+        // Title for last result
+        const titleStyle = new TextStyle({
+            fontFamily: '"Times New Roman", "Georgia", serif',
+            fontSize: 18,
+            fontWeight: 'bold',
+            fill: '#FFD700',
+            align: 'center',
+            stroke: { color: '#000000', width: 1 },
+            letterSpacing: 1
+        });
+
+        const titleText = new Text('🎯 Last Spin Result', titleStyle);
+        titleText.anchor.set(0.5);
+        titleText.x = centerX;
+        titleText.y = centerY +90;
+        resultsContainer.addChild(titleText);
+
+        // Display the last spin result
+        const { spin_number, color, parity } = lastSpinResult;
+        const colorHex = color === 'Red' ? 0xFF0000 : color === 'Black' ? 0x000000 : 0x00AA00;
+
+        // Elegant circular background for the number
+        const resultBg = new Graphics();
+        resultBg.circle(0, 0, 25);
+        resultBg.fill(colorHex);
+        resultBg.circle(0, 0, 23);
+        resultBg.fill({color: 0xFFFFFF, alpha: 0.1});
+        
+        
+        resultBg.x = centerX;
+        resultBg.y = titleText.y + titleText.height*2;
+        resultsContainer.addChild(resultBg);
+
+        // Number text
+        const numberStyle = new TextStyle({
+            fontFamily: 'Arial',
+            fontSize: 16,
+            fontWeight: 'bold',
+            fill: color === 'Black' ? 0xFFFFFF : 0xFFFFFF,
+            align: 'center',
+            stroke: { color: '#000000', width: 1.5 }
+        });
+
+        const numberText = new Text(spin_number.toString(), numberStyle);
+        numberText.anchor.set(0.5);
+        numberText.x = resultBg.position.x;
+        numberText.y = resultBg.position.y ;
+        resultsContainer.addChild(numberText);
+
+        // Status indicator below
+        const colorEmoji = color === 'Red' ? '🔴' : color === 'Black' ? '⚫' : '🟢';
+        const parityText = parity !== 'None' ? ` ${parity}` : '';
+        
+        const statusStyle = new TextStyle({
+            fontFamily: 'Arial',
+            fontSize: 12,
+            fill: '#CCCCCC',
+            align: 'center'
+        });
+
+        const statusText = new Text(`${colorEmoji}${parityText}`, statusStyle);
+        statusText.anchor.set(0.5);
+        statusText.x = numberText.x;
+        statusText.y = numberText.y + numberText.height*2;
+        resultsContainer.addChild(statusText);
+
+        // Add with animation
+        resultsContainer.alpha = 0;
+        this.noGamesBanner.addChild(resultsContainer);
+
+        Globals.gsap?.to(resultsContainer, {
+            alpha: 1,
+            duration: 0.8,
+            delay: 0.3,
+            ease: "power2.out"
+        });
+
+        console.log(`🎨 Banner updated with last spin: ${spin_number} ${color} ${parity}`);
     }
 
     /**
@@ -1090,8 +1189,8 @@ private formatCurrentTime(): string {
     }
 
     /**
-     * 🏆 Show winning banner with celebration animation
-     * @param winningNumber The winning number to display
+     * 🏆 Show winning banner with complete roulette information including number, color, and parity
+     * @param winningNumber The winning number to display with full details
      */
     public showWinningBanner(winningNumber: number): void {
         if (this.winningBannerVisible) return;
@@ -1099,8 +1198,35 @@ private formatCurrentTime(): string {
         this.winningBannerVisible = true;
         this.winningBanner.visible = true;
 
-        // Update the winning number text
-        this.winningBannerText.text = `🏆 WINNER: ${winningNumber} 🏆`;
+        // Get complete roulette properties for the winning number
+        const rouletteInfo = getRouletteProperties(winningNumber);
+        const { number, color, parity } = rouletteInfo;
+
+        // Create elegant casino-style text with complete information
+        const colorEmoji = color === 'Red' ? '🔴' : color === 'Black' ? '⚫' : '🟢';
+        const parityText = parity === 'None' ? '' : ` • ${parity}`;
+        const winningText = `🏆 WINNER: ${colorEmoji} ${number} ${color.toUpperCase()}${parityText} 🏆`;
+
+        // Update the winning banner text with rich information
+        this.winningBannerText.text = winningText;
+
+        // Dynamic color styling based on the winning number's color
+        const dynamicTextColor = color === 'Red' ? 0xFF4444 :  color === 'Black' ? 0xFFFFFF :  0x00FF44; // Green for zero
+
+        // Apply dynamic color with golden accent for elegance
+        this.winningBannerText.style.fill = {color: dynamicTextColor, alpha: 1}; // Gradient effect
+        this.winningBannerText.style.stroke = { color: 0x000000, width: 3 };
+        
+        // Enhanced drop shadow with color-matching glow
+        this.winningBannerText.style.dropShadow = {
+            color: color === 'Red' ? 0xFF4444 : 
+                  color === 'Black' ? 0xFFFFFF : 
+                  0x00FF44,
+            blur: 12,
+            angle: Math.PI / 4,
+            distance: 4,
+            alpha: 0.8
+        };
 
         // Spectacular entrance animation with celebration effects
         this.winningBanner.alpha = 0;
@@ -1115,44 +1241,58 @@ private formatCurrentTime(): string {
             ease: "power3.out"
         });
 
-        // Bouncy scale entrance
+        // Bouncy scale entrance with extra bounce for winning celebration
         Globals.gsap?.to(this.winningBanner.scale, {
             x: 1,
             y: 1,
-            duration: 1.0,
-            ease: "elastic.out(1, 0.5)"
+            duration: 1.2,
+            ease: "elastic.out(1, 0.4)" // More pronounced bounce for celebration
         });
 
-        // Celebration pulse animation
+        // Enhanced celebration pulse animation based on color
+        const pulseScale = color === 'Red' || color === 'Black' ? 1.15 : 1.25; // Extra emphasis for zero
         Globals.gsap?.to(this.winningBannerText.scale, {
-            x: 1.1,
-            y: 1.1,
-            duration: 1.5,
+            x: pulseScale,
+            y: pulseScale,
+            duration: color === 'Green' ? 1.2 : 1.5, // Faster pulse for green (zero)
             ease: "power2.inOut",
             yoyo: true,
             repeat: -1
         });
 
         // Subtle floating animation for the banner
-        const originalY = config.logicalHeight / 2;
+        const originalY = this.winningBanner.position.y;
         Globals.gsap?.to(this.winningBanner.position, {
-            y: originalY - 15,
+            y: originalY - (color === 'Green' ? 15 : 10), // Higher float for zero
             duration: 2.5,
             ease: "power1.inOut",
             yoyo: true,
             repeat: -1
         });
 
-        // Add golden glow effect to the text
+        // Enhanced golden glow effect with color-specific intensity
+        const glowIntensity = color === 'Green' ? 0.6 : 0.8; // More intense glow for zero
         Globals.gsap?.to(this.winningBannerText, {
-            alpha: 0.8,
-            duration: 0.8,
+            alpha: glowIntensity,
+            duration: color === 'Green' ? 0.6 : 0.8,
             ease: "power2.inOut",
             yoyo: true,
             repeat: -1
         });
 
-        console.log(`🏆 Winning banner shown for number: ${winningNumber}`);
+        // Add special celebration effects for zero (green)
+        if (color === 'Green') {
+            // Extra sparkle effect for zero - rotate the entire banner slightly
+            Globals.gsap?.to(this.winningBanner, {
+                rotation: 0.05,
+                duration: 1.0,
+                ease: "power1.inOut",
+                yoyo: true,
+                repeat: -1
+            });
+        }
+
+        console.log(`🏆 Enhanced winning banner shown: ${number} ${color} ${parity !== 'None' ? parity : ''}`);
     }
 
     /**
@@ -1190,7 +1330,7 @@ private formatCurrentTime(): string {
                 
                 // Reset position (with proper pivot centering)
                 const centerX = config.logicalWidth / 2;
-                const centerY = config.logicalHeight / 2;
+                const centerY = config.logicalHeight*0.75;
                 this.winningBanner.position.set(centerX, centerY);
             }
         });

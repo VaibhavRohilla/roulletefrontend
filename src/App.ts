@@ -47,7 +47,6 @@ export class Game {
       } else {
         pixiContainer.appendChild(this.app.canvas);
       }
-      
       this.setupCanvasStyles();
       this.setupResizeHandler();
 
