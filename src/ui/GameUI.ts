@@ -1202,25 +1202,23 @@ private formatCurrentTime(): string {
         const rouletteInfo = getRouletteProperties(winningNumber);
         const { number, color, parity } = rouletteInfo;
 
-        // Create elegant casino-style text with complete information
-        const colorEmoji = color === 'Red' ? '🔴' : color === 'Black' ? '⚫' : '🟢';
-        const parityText = parity === 'None' ? '' : ` • ${parity}`;
-        const winningText = `🏆 WINNER: ${colorEmoji} ${number} ${color.toUpperCase()}${parityText} 🏆`;
+     
+        const parityText = parity === 'None' ? '':`${parity}`;
+        const winningText = `🏆 WINNER: ${number} ${parityText} 🏆`;
 
         // Update the winning banner text with rich information
         this.winningBannerText.text = winningText;
 
-        // Dynamic color styling based on the winning number's color
-        const dynamicTextColor = color === 'Red' ? 0xFF4444 :  color === 'Black' ? 0xFFFFFF :  0x00FF44; // Green for zero
+       
 
         // Apply dynamic color with golden accent for elegance
-        this.winningBannerText.style.fill = {color: dynamicTextColor, alpha: 1}; // Gradient effect
+        this.winningBannerText.style.fill = {color: 0xFFFFFF, alpha: 1}; // Gradient effect
         this.winningBannerText.style.stroke = { color: 0x000000, width: 3 };
         
         // Enhanced drop shadow with color-matching glow
         this.winningBannerText.style.dropShadow = {
             color: color === 'Red' ? 0xFF4444 : 
-                  color === 'Black' ? 0xFFFFFF : 
+                  color === 'Black' ? 0x000000 : 
                   0x00FF44,
             blur: 12,
             angle: Math.PI / 4,
@@ -1280,17 +1278,6 @@ private formatCurrentTime(): string {
             repeat: -1
         });
 
-        // Add special celebration effects for zero (green)
-        if (color === 'Green') {
-            // Extra sparkle effect for zero - rotate the entire banner slightly
-            Globals.gsap?.to(this.winningBanner, {
-                rotation: 0.05,
-                duration: 1.0,
-                ease: "power1.inOut",
-                yoyo: true,
-                repeat: -1
-            });
-        }
 
         console.log(`🏆 Enhanced winning banner shown: ${number} ${color} ${parity !== 'None' ? parity : ''}`);
     }

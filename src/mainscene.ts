@@ -36,10 +36,7 @@ export class MainScene extends Scene {
         super(false);
         this.initializeScene();
         this.initializeSystems();
-        this.connectSystems();
-       
-        
-        
+        this.connectSystems()        
         console.log("🎯 MainScene orchestrator initialized");
     }
 
