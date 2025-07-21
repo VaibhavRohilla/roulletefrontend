@@ -52,9 +52,9 @@ export class MainScene extends Scene {
         this.mainContainer.addChild(rouletteBoard);
         rouletteBoard.anchor.set(0.5);
 
-        rouletteBoard.scale.set(0.7,0.6);
-        rouletteBoard.anchor.set(0.5,0);
-        rouletteBoard.position.set(this.roulette.position.x , this.roulette.position.y + this.roulette.height/2.4);
+        rouletteBoard.scale.set(0.35);
+        rouletteBoard.anchor.set(0.5);
+        rouletteBoard.position.set(this.roulette.position.x , this.roulette.position.y+ this.roulette.height/2+ rouletteBoard.height/5 );
 
         // Add roulette board to scene
         this.mainContainer.addChild(this.roulette);

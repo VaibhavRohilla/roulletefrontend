@@ -6,8 +6,8 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1753122512702,
-                "duration": 2.3276999997906387,
+                "date": 1753127964792,
+                "duration": 1.5140000000001237,
                 "success": true
             }
         },
@@ -18,8 +18,8 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1753104403797,
-                "duration": 25.84569999999985,
+                "date": 1753127964792,
+                "duration": 1.9826000000000477,
                 "success": true
             }
         },
@@ -242,11 +242,11 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1752927531088,
-                "duration": 1.2196999998996034,
+                "date": 1753127964792,
+                "duration": 2.0132999999998447,
                 "success": true
             },
-            "hash": "pwGCxg"
+            "hash": "0mtwdQ"
         },
         "D:/Freelnace/roulletefrontend/public/assets/assets/table.png": {
             "isFolder": false,
