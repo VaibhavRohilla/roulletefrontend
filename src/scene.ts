@@ -16,20 +16,17 @@ export abstract class Scene {
     constructor(isGraphics : boolean) {
         this.sceneContainer = new Container();
         if (isGraphics) {
-            this.mainBackground = new BackgroundGraphic(config.logicalWidth, config.logicalHeight, 0xFfffff);
+            this.mainBackground = new BackgroundGraphic( window.innerWidth, window.innerHeight, 0x000000);
             
             } 
             else {
-                console.log(Globals.resources,);
-                this.mainBackground = new BackgroundSprite(Globals.resources.GameBG , window.innerWidth, window.innerHeight);
-                console.log("BackgroundSprite",this.mainBackground);
-                
+                this.mainBackground = new BackgroundSprite(Globals.resources.GameBG , window.innerWidth, window.innerHeight)
               }
-                this.addChildToFullScene(this.mainBackground);
+
+
+        this.sceneContainer.addChild(this.mainBackground);
         this.mainContainer = new Container();
-
-        this.resetMainContainer();
-
+        this.resetMainContainer();      
         this.sceneContainer.addChild(this.mainContainer);
 
         // const mask = new Graphics();
@@ -56,7 +53,7 @@ export abstract class Scene {
     }
     resize(): void {
         this.resetMainContainer();
-        // this.mainBackground.resetBg(window.innerWidth, window.innerHeight);
+        this.mainBackground.resetBg(window.innerWidth, window.innerHeight);
         this.mainBackground.width =  window.innerWidth;
         this.mainBackground.height =  window.innerHeight;
 
@@ -70,11 +67,9 @@ export abstract class Scene {
     }
 
     addChildToFullScene(component: any) {
-        console.log("addChildToFullScene", component);
-        
         this.sceneContainer.addChild(component);
-
     }
+
     addChildToIndexFullScene(component: any, index: number) {
         this.sceneContainer.addChildAt(component, index);
     }

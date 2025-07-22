@@ -31,12 +31,13 @@ export class BackgroundGraphic extends PIXI.Graphics {
         
 
         this.createGraphic();
+        this.resetBg(width, height, color);
     }
 
     createGraphic() {
         this.clear();
-        this.position.set(0, 0);
-        this.rect(0, 0, this.defaultProperties.width, this.defaultProperties.height);
+        this.position.set(0,0);
+        this.rect(0, 0, this.defaultProperties.width*2, this.defaultProperties.height*5);
         this.fill(this.defaultProperties.color);
     }
 
@@ -69,12 +70,6 @@ export class BackgroundSprite extends PIXI.Sprite {
             height: height,
             scaleSize: scaleSize
         };
-        const Graphics = new PIXI.Graphics();
-        Graphics.rect(0, 0, this.width, this.height);
-        Graphics.fill(0x000000);
-        Graphics.alpha = 0.2;
-        this.allowChildren = true;
-        this.addChild(Graphics);
 
         this.width = width;
         this.height = height;

@@ -25,7 +25,7 @@ export class Game {
   async init(): Promise<void> {
     try {
       await this.app.init({ 
-        background: config.backgroundColor,
+          background: config.backgroundColor,
         resolution: window.devicePixelRatio || 1,
         autoDensity: true,
         antialias: true,
@@ -138,22 +138,20 @@ export class Game {
       loadingBarOptions: {
         width: 400,
         height: 40,
-        backgroundColor: 0x000000,
-        fillColor: 0x00aaff,
+        backgroundColor: 0x11452F,
+        fillColor: 0xFFC30B,
         textColor: 0xffffff
       },
       onComplete: (loadedAssets: Record<string, any>) => {
         console.log('Loading complete! Processing assets:', loadedAssets);
         this.storeAssets(loadedAssets);
-        this.loadingScene.destroy({ children: true, texture: true, baseTexture: true });
-        this.app.stage.removeChild(this.loadingScene);
         
         console.log("Globals after loading:", {resources: Globals.resources, soundResources: Globals.soundResources});
         this.createGameScene();
       }
     });
 
-    // this.app.stage.addChild(this.loadingScene); 
+    this.sceneManager.start(this.loadingScene); 
     console.log("Loading scene added to stage");
 
     console.log("Starting loading process...");

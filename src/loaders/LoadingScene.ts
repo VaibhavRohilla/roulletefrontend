@@ -1,8 +1,10 @@
-import { Container, Text } from 'pixi.js';
+import {  Text } from 'pixi.js';
 import LoadingManager, { LoadingProgress } from './LoadingManager';
 import LoadingBar from './LoadingBar';
 import gsap from 'gsap';
 import { TextLabel } from '../textlabel';
+import { Scene } from '../scene';
+import { config } from '../appconfig';
 
 export interface LoadingSceneOptions {
   manifestPath?: string;
@@ -17,7 +19,7 @@ export interface LoadingSceneOptions {
   onComplete?: (assets: Record<string, any>) => void;
 }
 
-export default class LoadingScene extends Container {
+export default class LoadingScene extends Scene {
   private loadingManager: LoadingManager;
   private loadingBar: LoadingBar;
   private statusText: Text;
@@ -26,7 +28,7 @@ export default class LoadingScene extends Container {
   private isLoading: boolean = false;
   
   constructor(options: LoadingSceneOptions = {}) {
-    super();
+    super(true);
     
     this.options = options;
     
@@ -38,7 +40,7 @@ export default class LoadingScene extends Container {
     
     // Create loading bar
     this.loadingBar = new LoadingBar(options.loadingBarOptions);
-    this.addChild(this.loadingBar);
+    this.mainContainer.addChild(this.loadingBar);
     
     // // Create status text
     // const textStyle = new TextStyle({
@@ -49,23 +51,20 @@ export default class LoadingScene extends Container {
     
     this.statusText = new TextLabel(0,0,0.5,'Initializing...', 0xFFFFFF);
     this.statusText.anchor.set(0.5, 0);
-    this.addChild(this.statusText);
+    this.mainContainer. addChild(this.statusText);
     
-    // Center the loading bar
-    this.positionLoadingBar();
     
     console.log('LoadingScene: Created successfully');
   }
-  
-  /**
-   * Position the loading bar in the center of the screen
-   */
-  private positionLoadingBar(): void {
-    // Note: This will need stage dimensions to center properly
-    // We'll update this in the start method once we have access to the stage
-    this.loadingBar.position.set(0, 0);
-    this.statusText.position.set(0, 40);
+
+  update(): void {
+    // TODO: Implement update logic
   }
+
+  recievedMessage(): void {
+    // TODO: Implement recievedMessage logic
+  }
+
   
   /**
    * Handle progress updates from the loading manager
@@ -88,8 +87,8 @@ export default class LoadingScene extends Container {
     this.isLoading = true;
     
     // Center the loading bar now that we have dimensions
-    this.loadingBar.position.set(width / 2, height / 2);
-    this.statusText.position.set(width / 2, height / 2 + 30);
+    this.loadingBar.position.set(config.logicalWidth / 2, config.logicalHeight / 2 - this.loadingBar.height / 2);
+    this.statusText.position.set(config.logicalWidth / 2, config.logicalHeight / 2 + 30);
     
     try {
       this.statusText.text = 'Loading manifest...';
@@ -158,6 +157,6 @@ export default class LoadingScene extends Container {
   public destroy(options?: boolean | { children?: boolean; texture?: boolean; baseTexture?: boolean }): void {
     console.log('LoadingScene: Destroying');
     this.loadingBar.destroy(options);
-    super.destroy(options);
+    super.destroyScene();
   }
 } 
