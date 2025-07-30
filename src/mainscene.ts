@@ -283,33 +283,35 @@ export class MainScene extends Scene {
     }
 
     /**
-     * 🎰 Handle API server spin (new polling-based method)
+     * 🎰 Handle API server spin (new polling-based method) - STATE VALIDATION FIXED
      */
     private handleAPIServerSpin(spinIndex: number): void {
         console.log(`🎰 API Spin triggered! Index: ${spinIndex}`);
         
-        // Validate spin index
-        if (spinIndex < 0 || spinIndex >= 37) {
-            console.error(`❌ Invalid spin index from API: ${spinIndex}. Valid range: 0-36`);
+        // CRITICAL FIX: Comprehensive input validation
+        if (!Number.isInteger(spinIndex) || spinIndex < 0 || spinIndex >= 37) {
+            console.error(`❌ Invalid spin index from API: ${spinIndex}. Valid range: 0-36 (integers only)`);
+            return;
+        }
+
+        // CRITICAL FIX: State validation before accepting spin
+        if (this.isSpinning) {
+            console.warn(`⚠️ Spin already in progress, ignoring new spin request: ${spinIndex}`);
+            return;
+        }
+
+        if (this.gameUI.isCountdownRunning()) {
+            console.warn(`⚠️ Countdown still running, ignoring spin request: ${spinIndex}`);
             return;
         }
         
-        // // 🔧 FIX: Convert server index to actual number
-        // const rouletteNumbers = this.roulette.getRouletteNumbers();
-        // const targetNumber = rouletteNumbers[spinIndex];
-        
-        // if (targetNumber === undefined) {
-        //     console.error(`❌ Invalid server index: ${spinIndex}. Valid range: 0-${rouletteNumbers.length - 1}`);
-        //     return;
-        // }
-        
-        // console.log(`🎯 Converted API index ${spinIndex} to target number ${targetNumber}`);
+        console.log(`✅ Spin validation passed for index: ${spinIndex}`);
         
         // Hide no games banner and stop countdown
         this.gameUI.hideNoGamesBanner();
         this.gameUI.stopCountdown();
         
-        // Execute spin with the actual number
+        // Execute spin with validated input
         this.startSpin(spinIndex);
     }
 

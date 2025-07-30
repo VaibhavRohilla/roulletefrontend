@@ -1358,29 +1358,69 @@ private formatCurrentTime(): string {
     }
 
     /**
-     * 🗑️ Cleanup method
+     * 🗑️ Cleanup method - MEMORY LEAK FIXED
      */
     public destroy(): void {
+        console.log("🗑️ Starting GameUI destruction...");
+        
+        // CRITICAL FIX: Stop all animations and timers first
         this.stopCountdown();
         this.hideNoGamesBanner();
         this.hideWinningBanner();
         
-        // Kill all GSAP animations
-        if (this.noGamesBanner) {
-            Globals.gsap?.killTweensOf(this.noGamesBanner);
-        }
-        if (this.winningBanner) {
-            Globals.gsap?.killTweensOf(this.winningBanner);
-            Globals.gsap?.killTweensOf(this.winningBannerText);
+        // CRITICAL FIX: Kill ALL GSAP animations comprehensively
+        if (Globals.gsap) {
+            // Kill animations on all UI elements
+            if (this.noGamesBanner) {
+                Globals.gsap.killTweensOf(this.noGamesBanner);
+                Globals.gsap.killTweensOf(this.noGamesBanner.scale);
+                Globals.gsap.killTweensOf(this.noGamesBanner.children);
+            }
+            if (this.winningBanner) {
+                Globals.gsap.killTweensOf(this.winningBanner);
+                Globals.gsap.killTweensOf(this.winningBanner.scale);
+                Globals.gsap.killTweensOf(this.winningBannerText);
+                Globals.gsap.killTweensOf(this.winningBannerText.scale);
+            }
+            if (this.countdownOverlay) {
+                Globals.gsap.killTweensOf(this.countdownOverlay);
+                Globals.gsap.killTweensOf(this.countdownText);
+            }
+            
+            // CRITICAL FIX: Kill any countdown tweens
+            if (this.countdownTween) {
+                this.countdownTween.kill();
+                this.countdownTween = null;
+            }
         }
         
-        // Remove all UI elements
-        if (this.timeDisplay) this.container.removeChild(this.timeDisplay);
-        if (this.countdownOverlay) this.container.removeChild(this.countdownOverlay);
-        if (this.connectionStatusText) this.container.removeChild(this.connectionStatusText);
-        if (this.noGamesBanner) this.container.removeChild(this.noGamesBanner);
-        if (this.winningBanner) this.container.removeChild(this.winningBanner);
+        // CRITICAL FIX: Reset all state flags
+        this.isCountdownActive = false;
+        this.bannerVisible = false;
+        this.winningBannerVisible = false;
+        this.countdownValue = 0;
         
-        console.log("🎨 Game UI destroyed");
+        // Remove all UI elements safely
+        try {
+            if (this.timeDisplay && this.container.children.includes(this.timeDisplay)) {
+                this.container.removeChild(this.timeDisplay);
+            }
+            if (this.countdownOverlay && this.container.children.includes(this.countdownOverlay)) {
+                this.container.removeChild(this.countdownOverlay);
+            }
+            if (this.connectionStatusText && this.container.children.includes(this.connectionStatusText)) {
+                this.container.removeChild(this.connectionStatusText);
+            }
+            if (this.noGamesBanner && this.container.children.includes(this.noGamesBanner)) {
+                this.container.removeChild(this.noGamesBanner);
+            }
+            if (this.winningBanner && this.container.children.includes(this.winningBanner)) {
+                this.container.removeChild(this.winningBanner);
+            }
+        } catch (error) {
+            console.warn("⚠️ Error removing UI elements:", error);
+        }
+        
+        console.log("🎨 Game UI destroyed - All animations killed, all elements removed");
     }
 } 

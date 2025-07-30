@@ -1,4 +1,4 @@
-import { Globals } from "../globals";
+
 
 export interface GameCycleEvents {
     onRoundStart: (timeLeft: number) => void;
@@ -38,10 +38,19 @@ export class GameCycleManager {
     private lastGameState: APIGameState | null = null;
     private connectionErrors: number = 0;
     private maxRetries: number = 5;
+    private lastCountdownEndTime: number = 0; // Track when countdown ended
+    
+    // Simple cost-effective polling configuration
+    private readonly POLLING_INTERVAL = 5000; // 5s always (720 calls/hour - cost-effective)
+    
+    // CRITICAL FIX: Add polling state management to prevent race conditions
+    private pollingLock: boolean = false;
+    private isDestroyed: boolean = false;
 
     constructor(events: GameCycleEvents) {
         this.events = events;
-        this.apiBaseUrl = Globals.isProd ? 'https://roulletebackend.onrender.com' : 'http://localhost:3001';
+        this.apiBaseUrl = 'https://czd5rvvr-3001.inc1.devtunnels.ms';
+        // this.apiBaseUrl = Globals.isProd ? 'https://roulletebackend.onrender.com' : 'http://localhost:3001';
         console.log("🔄 GameCycleManager initialized with API polling");
     }
 
@@ -114,38 +123,77 @@ export class GameCycleManager {
     }
 
     /**
-     * 🔄 Start polling for game state
+     * 🔄 Start simple cost-effective polling - RACE CONDITION FIXED
      */
     private startPolling(): void {
+        // CRITICAL FIX: Add polling lock to prevent concurrent execution
+        if (this.pollingLock) {
+            console.log("🔒 Polling start already in progress");
+            return;
+        }
+
         if (this.isPolling) {
             console.warn("⚠️ Polling already active");
             return;
         }
 
-        this.isPolling = true;
-        console.log("🔄 Starting game state polling");
+        if (this.isDestroyed) {
+            console.warn("⚠️ Cannot start polling - GameCycleManager destroyed");
+            return;
+        }
 
-        this.pollingInterval = setInterval(async () => {
-            await this.pollGameState();
-        }, 5000); // Poll every second
+        this.pollingLock = true;
+
+        try {
+            // CRITICAL FIX: Clear any existing interval before starting new one
+            this.stopPolling();
+
+            this.isPolling = true;
+            console.log(`🔄 Starting cost-effective polling every ${this.POLLING_INTERVAL}ms (720 calls/hour)`);
+
+            // CRITICAL FIX: Use setInterval consistently (not mixed with setTimeout)
+            this.pollingInterval = setInterval(async () => {
+                if (!this.isDestroyed && this.isPolling) {
+                    await this.pollGameState();
+                } else {
+                    console.log("⏹️ Polling stopped due to destroy or stop flag");
+                    this.stopPolling();
+                }
+            }, this.POLLING_INTERVAL);
+
+            this.pollingLock = false;
+
+        } catch (error) {
+            this.pollingLock = false;
+            console.error("❌ Error starting polling:", error);
+        }
     }
 
     /**
-     * ⏹️ Stop polling
+     * ⏹️ Stop polling - MEMORY LEAK FIXED
      */
     private stopPolling(): void {
+        // CRITICAL FIX: Proper interval cleanup to prevent memory leaks
         if (this.pollingInterval) {
             clearInterval(this.pollingInterval);
             this.pollingInterval = null;
+            console.log("🧹 Polling interval cleared");
         }
+        
         this.isPolling = false;
-        console.log("⏹️ Polling stopped");
+        this.pollingLock = false; // Reset lock on stop
+        console.log("⏹️ Cost-effective polling stopped");
     }
 
     /**
-     * 📊 Poll game state and handle response
+     * 📊 Poll game state and handle response - RACE CONDITION FIXED
      */
     private async pollGameState(): Promise<void> {
+        // CRITICAL FIX: Check if destroyed or not polling
+        if (this.isDestroyed || !this.isPolling) {
+            return;
+        }
+
         // Only poll when appropriate (not during countdown or spin)
         if (this.shouldSkipPolling()) {
             return;
@@ -153,15 +201,25 @@ export class GameCycleManager {
 
         try {
             const gameState = await this.fetchGameState();
+            
+            // CRITICAL FIX: Check again if destroyed before processing response
+            if (this.isDestroyed) {
+                return;
+            }
+            
             this.handleGameStateResponse(gameState);
-            this.connectionErrors = 0; // Reset error count on success
-
-            // Restore connection if it was previously lost
+            
+            // Reset error count on success and restore connection if needed
             if (this.connectionErrors > 0) {
+                this.connectionErrors = 0;
                 this.events.onConnectionRestored();
             }
+            
         } catch (error) {
-            this.handleConnectionError();
+            // CRITICAL FIX: Only handle connection error if not destroyed
+            if (!this.isDestroyed) {
+                this.handleConnectionError();
+            }
         }
     }
 
@@ -173,24 +231,37 @@ export class GameCycleManager {
     }
 
     /**
-     * 📨 Handle game state response from API
+     * 📨 Handle game state response from API (SIMPLE 5S POLLING)
      */
     private handleGameStateResponse(gameState: APIGameState): void {
-        console.log("📨 Game state received:", gameState);
+        console.log("📨 Game state received (5s polling):", {
+            roundActive: gameState.roundActive,
+            isSpinning: gameState.isSpinning,
+            spinIndex: gameState.spinIndex,
+            hasLastSpin: !!gameState.lastSpinResult,
+            frontendState: {
+                isCountdownActive: this.isCountdownActive,
+                isSpinInProgress: this.isSpinInProgress,
+                timeSinceCountdown: this.lastCountdownEndTime ? Date.now() - this.lastCountdownEndTime : 'N/A'
+            }
+        });
 
         // Check for significant state changes
         const isNewState = !this.lastGameState || this.hasSignificantChange(this.lastGameState, gameState);
         this.lastGameState = gameState;
 
         if (!isNewState) {
-            return; // No significant changes
+            return; // No significant changes - cost-effective approach
         }
 
         if (gameState.roundActive && gameState.roundStartTime && gameState.roundDuration) {
+            console.log("🎯 Handling active round state (5s max delay)");
             this.handleActiveRound(gameState);
         } else if (gameState.isSpinning && gameState.spinIndex !== undefined) {
+            console.log("🎰 Handling active spin state (5s max delay)");
             this.handleActiveSpin(gameState);
         } else {
+            console.log("💤 Handling idle state (5s max delay acceptable)");
             this.handleIdleState();
         }
     }
@@ -251,10 +322,11 @@ export class GameCycleManager {
             return;
         }
 
-        console.log(`🎰 Active spin detected - Index: ${spinIndex}`);
+        console.log(`🎰 Active spin detected - Index: ${spinIndex} (caught by 5s polling)`);
         
         this.stopPolling();
         this.isSpinInProgress = true;
+        this.lastCountdownEndTime = 0; // Reset countdown tracking since we found a spin
         this.events.onSpinTrigger(spinIndex);
         
         // Resume polling after estimated spin duration (frontend handles timing)
@@ -264,15 +336,28 @@ export class GameCycleManager {
     }
 
     /**
-     * 💤 Handle idle state (no active round or spin)
+     * 💤 Handle idle state (no active round or spin) - SIMPLE APPROACH
      */
     private handleIdleState(): void {
         const lastSpinInfo = this.lastGameState?.lastSpinResult;
-        console.log("💤 Idle state detected - showing no games banner", lastSpinInfo ? `with last spin: ${lastSpinInfo.spin_number}` : 'no last spin');
+        const timeSinceCountdown = Date.now() - this.lastCountdownEndTime;
+        
+        // Give a brief grace period if countdown just ended (accept 5s delay vs cost)
+        if (this.lastCountdownEndTime > 0 && timeSinceCountdown < 10000) {
+            console.log(`⏳ Recent countdown (${Math.round(timeSinceCountdown/1000)}s ago) - continuing polling, may show spin within 5s`);
+            
+            // Just continue polling - if there's a spin, we'll catch it in next poll cycle
+            if (!this.isPolling) {
+                this.startPolling();
+            }
+            return;
+        }
+        
+        console.log("💤 Confirmed idle state - showing no games banner", lastSpinInfo ? `with last spin: ${lastSpinInfo.spin_number}` : 'no last spin');
         this.stopPolling(); // Temporarily stop polling
         this.events.onNoGames(lastSpinInfo);
         
-        // Resume polling after short delay
+        // Resume polling after short delay to check for new rounds
         setTimeout(() => {
             if (!this.isPolling && !this.isCountdownActive && !this.isSpinInProgress) {
                 this.startPolling();
@@ -286,35 +371,41 @@ export class GameCycleManager {
     private onCountdownComplete(): void {
         console.log("⏰ Countdown completed - waiting for spin");
         this.isCountdownActive = false;
+        this.lastCountdownEndTime = Date.now(); // Track when countdown ended
         
         // Try to get spin result or resume polling
         this.handleCountdownCompleteFlow();
     }
 
     /**
-     * 🔄 Handle the flow after countdown completes
+     * 🔄 Handle the flow after countdown completes (SIMPLE & COST-EFFECTIVE)
      */
     private async handleCountdownCompleteFlow(): Promise<void> {
         try {
-            // Option 1: Try to get spin result immediately
-            const spinResult = await this.fetchSpinResult();
+            console.log("🔄 Countdown complete - checking for immediate spin (simple approach)");
             
+            // Quick check for immediate spin result
+            const spinResult = await this.fetchSpinResult();
             if (spinResult) {
-                console.log(`🎰 Spin result available: ${spinResult.spinIndex}`);
+                console.log(`🎰 Immediate spin found: ${spinResult.spinIndex}`);
                 this.isSpinInProgress = true;
+                this.lastCountdownEndTime = 0; // Reset countdown tracking
                 this.events.onSpinTrigger(spinResult.spinIndex);
                 
                 setTimeout(() => {
                     this.onSpinComplete();
                 }, 18000);
-            } else {
-                // Option 2: Resume polling to detect spin start
-                console.log("🔄 No immediate spin result, resuming polling");
-                this.startPolling();
+                return;
             }
+            
+            // No immediate spin - just resume polling and let it catch the spin within 5s
+            console.log("🔄 No immediate spin - resuming polling (will catch spin within 5s if available)");
+            this.startPolling();
+            
         } catch (error) {
             console.error("❌ Error in countdown complete flow:", error);
-            this.startPolling(); // Fallback to polling
+            console.log("🔄 Fallback: resuming polling");
+            this.startPolling();
         }
     }
 
@@ -374,6 +465,7 @@ export class GameCycleManager {
         isInIdleCountdown: boolean;
         connectionErrors: number;
         lastGameState: APIGameState | null;
+        pollingInterval: number;
     } {
         return {
             isPolling: this.isPolling,
@@ -381,15 +473,32 @@ export class GameCycleManager {
             isSpinInProgress: this.isSpinInProgress,
             isInIdleCountdown: this.isInIdleCountdown,
             connectionErrors: this.connectionErrors,
-            lastGameState: this.lastGameState
+            lastGameState: this.lastGameState,
+            pollingInterval: this.POLLING_INTERVAL
         };
     }
 
     /**
-     * 🗑️ Cleanup method
+     * 🗑️ Cleanup method - MEMORY LEAK FIXED
      */
     public destroy(): void {
+        console.log("🗑️ Starting GameCycleManager destruction...");
+        
+        // CRITICAL FIX: Set destroyed flag to prevent further operations
+        this.isDestroyed = true;
+        
+        // Stop all polling and clear timers
         this.stop();
-        console.log("🗑️ GameCycleManager destroyed");
+        
+        // CRITICAL FIX: Force clear all state to prevent memory leaks
+        this.isCountdownActive = false;
+        this.isSpinInProgress = false;
+        this.isInIdleCountdown = false;
+        this.lastGameState = null;
+        this.connectionErrors = 0;
+        this.lastCountdownEndTime = 0;
+        this.pollingLock = false;
+        
+        console.log("🗑️ GameCycleManager destroyed - All state cleared");
     }
 } 
