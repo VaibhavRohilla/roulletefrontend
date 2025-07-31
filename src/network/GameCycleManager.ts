@@ -1,3 +1,4 @@
+import { Globals } from "../globals";
 
 
 export interface GameCycleEvents {
@@ -49,8 +50,8 @@ export class GameCycleManager {
 
     constructor(events: GameCycleEvents) {
         this.events = events;
-        this.apiBaseUrl = 'https://czd5rvvr-3001.inc1.devtunnels.ms';
-        // this.apiBaseUrl = Globals.isProd ? 'https://roulletebackend.onrender.com' : 'http://localhost:3001';
+        this.apiBaseUrl = Globals.isProd ? 'https://roulletebackend.onrender.com' : 'http://localhost:3001';
+        // this.apiBaseUrl = 'http://localhost:3001';
         console.log("🔄 GameCycleManager initialized with API polling");
     }
 

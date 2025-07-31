@@ -300,10 +300,10 @@ export class MainScene extends Scene {
             return;
         }
 
-        if (this.gameUI.isCountdownRunning()) {
-            console.warn(`⚠️ Countdown still running, ignoring spin request: ${spinIndex}`);
-            return;
-        }
+        // if (this.gameUI.isCountdownRunning()) {
+        //     console.warn(`⚠️ Countdown still running, ignoring spin request: ${spinIndex}`);
+        //     return;
+        // }
         
         console.log(`✅ Spin validation passed for index: ${spinIndex}`);
         
