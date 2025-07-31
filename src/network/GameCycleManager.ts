@@ -51,7 +51,6 @@ export class GameCycleManager {
     constructor(events: GameCycleEvents) {
         this.events = events;
         this.apiBaseUrl = Globals.isProd ? 'https://roulletebackend.onrender.com' : 'http://localhost:3001';
-        // this.apiBaseUrl = 'http://localhost:3001';
         console.log("🔄 GameCycleManager initialized with API polling");
     }
 
