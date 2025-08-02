@@ -352,11 +352,13 @@ export class BallPhysics {
                 
                 this.events.onPhaseChanged('falling', progress);
             },
-            onComplete: () => {
-                console.log("✅ Phase 4 Complete - Smooth fall achieved");
-                this.events.onBallLanded(this.targetWinningNumber);
-                this.executePhase5_SmoothBounce();
-            }
+           onComplete: () => {
+            console.log("✅ Phase 4 Complete - Smooth fall achieved");
+            this.ballVelocity = 0; // 🔧 Reset velocity after fall
+            this.events.onBallLanded(this.targetWinningNumber);
+            this.executePhase5_SmoothBounce();
+}
+
         });
     }
 
@@ -397,10 +399,12 @@ export class BallPhysics {
                 
                 this.events.onPhaseChanged('bouncing', progress);
             },
-            onComplete: () => {
-                console.log("✅ Phase 5 Complete - Bounce settled, checking position");
-                this.executePhase6_BottomMovement();
-            }
+          onComplete: () => {
+    console.log("✅ Phase 5 Complete - Bounce settled, checking position");
+    this.ballVelocity = 0; // 🔧 Reset again after bounce
+    this.executePhase6_BottomMovement();
+}
+
         });
     }
 
@@ -556,11 +560,13 @@ export class BallPhysics {
                     
                     // Check if capture is complete
                     const finalDistance = Math.abs(this.normalizeAngle(targetWorldAngle - this.currentBallAngle)) * (180 / Math.PI);
-                    if (finalDistance < 2.0 || captureProgress >= 1.0) {
-                        console.log(`✅ CAPTURE COMPLETE: Ball successfully captured by pocket ${this.targetWinningNumber}!`);
-                        this.currentTween?.progress(1);
-                        return;
-                    }
+                  if (finalDistance < 2.0 || captureProgress >= 1.0) {
+    console.log(`✅ CAPTURE COMPLETE: Ball successfully captured by pocket ${this.targetWinningNumber}!`);
+    this.currentBallAngle = targetWorldAngle; // 🔧 Snap to exact angle
+    this.currentTween?.progress(1);
+    return;
+}
+
                 }
                 
                 // Keep ball at bottom radius
@@ -623,10 +629,12 @@ export class BallPhysics {
         this.ball.position.set(x, y);
         
         // GSAP-controlled angle update (smooth) - Note: bottom_moving phase handles its own angle updates
-        if (this.currentPhase === 'orbital' || this.currentPhase === 'launching' || this.currentPhase === 'approaching') {
-            this.currentBallAngle += this.ballDirection * this.ballVelocity / 60;
-            this.currentBallAngle = this.normalizeAngle(this.currentBallAngle);
-        }
+        // GSAP-controlled angle update (smooth)
+if (this.currentPhase === 'orbital' || this.currentPhase === 'launching' || this.currentPhase === 'approaching') {
+    this.currentBallAngle += this.ballDirection * this.ballVelocity / 60;
+    this.currentBallAngle = this.normalizeAngle(this.currentBallAngle);
+}
+
         // Note: 'bottom_moving' and 'gradual_capture' phases handle their own angle updates
     }
 
