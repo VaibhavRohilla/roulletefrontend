@@ -38,15 +38,18 @@ export class BallPhysics {
     // 🧭 Simplified direction system
     private ballDirection: number = 1; // 1 = clockwise, -1 = counter-clockwise
     
-    // 🆕 Phase transition state for smooth velocity handoff
-    private phase1EndingVelocity: number = 0;
+    // 🆕 Phase transition state for smooth velocity handoff (removed as velocity is now handled in update)
     
     private accumulatedTime: number = 0;
 
     // Physics parameters (Simplified for smooth performance)
     private readonly BOUNCE_DAMPING = 0.65;
     // 🔧 RECALIBRATED: Proper velocities for delta-time based physics
-    private readonly ORBITAL_SPEED_INITIAL = 80; // radians/second (fast, exciting launch speed)
+    private readonly ORBITAL_SPEED_INITIAL = 110; // radians/second (faster initial launch for outer-track realism)
+    // 🆕 Continuous friction (handled in update(dt))
+    private readonly FRICTION_LINEAR = 0.6; // s^-1 (rolling friction component)
+    private readonly FRICTION_QUADRATIC = 0.03; // (air drag component)
+    private readonly FRICTION_LAUNCH_MULTIPLIER = 0.5; // Reduce friction during launch burst
 
     // Dynamic radius calculations
     private ballStartRadius: number = 0;
@@ -199,10 +202,7 @@ export class BallPhysics {
             onUpdate: () => {
                 const progress = this.currentTween?.progress() || 0;
                 
-                // 🔧 REALISTIC PHYSICS: Ball starts fast and immediately begins slowing due to friction
-                // Apply slight friction even during launch phase
-                const launchFriction = 0.995; // Very light friction during initial wobble
-                this.ballVelocity *= launchFriction;
+                // 🔧 REALISTIC PHYSICS: Deceleration is handled continuously in update(dt)
                 
                 // Simple launch wobble
                 const wobble = Math.sin(progress * Math.PI * 3) * 2 * (1 - progress);
@@ -215,9 +215,7 @@ export class BallPhysics {
             },
             onComplete: () => {
                 console.log("✅ Phase 1 Complete - Smooth launch achieved");
-                console.log(`🔧 Phase 1 ending velocity: ${this.ballVelocity.toFixed(2)} rad/s (${(this.ballVelocity/(2*Math.PI)).toFixed(2)} rev/s) - realistic deceleration started`);
-                // 🔧 FIX: Use actual current velocity instead of artificial constant
-                this.phase1EndingVelocity = this.ballVelocity; // Store real ending velocity
+                console.log(`🔧 Phase 1 ending velocity: ${this.ballVelocity.toFixed(2)} rad/s (${(this.ballVelocity/(2*Math.PI)).toFixed(2)} rev/s) - realistic deceleration handled in update(dt)`);
                 this.executePhase2_SmoothOrbital();
             }
         });
@@ -236,13 +234,8 @@ export class BallPhysics {
         const targetRounds = 2.5; // Fixed rounds instead of random
         const orbitalDuration = targetRounds * 2.0; // 5 seconds total (consistent)
         
-        // 🔧 REALISTIC PHYSICS: Continue deceleration from Phase 1's actual ending velocity
-        const startingVelocity = this.phase1EndingVelocity; // Use real velocity from Phase 1
-        const endingVelocity = startingVelocity * 0.6; // Reduce by 40% during orbital phase
-        const velocityDecayRate = (startingVelocity - endingVelocity) / orbitalDuration;
-        
-        console.log(`🔧 Phase 2 velocity: ${startingVelocity.toFixed(2)} → ${endingVelocity.toFixed(2)} rad/s over ${orbitalDuration}s`);
-        console.log(`🔧 That's ${(startingVelocity/(2*Math.PI)).toFixed(2)} → ${(endingVelocity/(2*Math.PI)).toFixed(2)} revolutions/second`);
+        // 🔧 REALISTIC PHYSICS: Deceleration now handled by continuous friction in update(dt)
+        console.log(`🔧 Phase 2: Velocity decays via friction model in update(dt) over ${orbitalDuration}s`);
         
         const orbitalState = { rotation: 0 };
         
@@ -252,13 +245,6 @@ export class BallPhysics {
             ease: "none", // 🔧 FIX: Use linear easing to avoid speed fluctuations
             onUpdate: () => {
                 const progress = this.currentTween?.progress() || 0;
-                const elapsedTime = progress * orbitalDuration;
-                
-                // 🔧 REALISTIC PHYSICS: Continuous linear deceleration due to friction
-                this.ballVelocity = Math.max(
-                    startingVelocity - (velocityDecayRate * elapsedTime),
-                    endingVelocity
-                );
                 
                 // 🔧 FIX: Simple orbital variations WITHOUT velocity modification
                 this.addSimpleOrbitalVariationsWithoutVelocityChange(progress);
@@ -298,26 +284,14 @@ export class BallPhysics {
         // Continue orbital motion but check for precise drop position continuously
         const maxApproachTime = 8.0; // Maximum time to wait for precise alignment
         
-        // 🔧 REALISTIC PHYSICS: Continue slowing down from current velocity
-        const startingApproachVelocity = this.ballVelocity; // Use current velocity
-        const endingApproachVelocity = startingApproachVelocity * 0.7; // Further reduction
-        const approachDecayRate = (startingApproachVelocity - endingApproachVelocity) / maxApproachTime;
-        
-        console.log(`🔧 Phase 3 velocity: ${startingApproachVelocity.toFixed(2)} → ${endingApproachVelocity.toFixed(2)} rad/s`);
-        console.log(`🔧 That's ${(startingApproachVelocity/(2*Math.PI)).toFixed(2)} → ${(endingApproachVelocity/(2*Math.PI)).toFixed(2)} revolutions/second`);
+        // 🔧 REALISTIC PHYSICS: Deceleration now handled by continuous friction in update(dt)
+        console.log(`🔧 Phase 3: Deceleration handled in update(dt); current velocity: ${this.ballVelocity.toFixed(2)} rad/s`);
         
         this.currentTween = Globals.gsap?.to({}, {
             duration: maxApproachTime,
             ease: "none", // Linear motion for consistent checking
             onUpdate: () => {
                 const progress = this.currentTween?.progress() || 0;
-                const elapsedTime = progress * maxApproachTime;
-                
-                // 🔧 REALISTIC PHYSICS: Continue linear deceleration
-                this.ballVelocity = Math.max(
-                    startingApproachVelocity - (approachDecayRate * elapsedTime),
-                    endingApproachVelocity
-                );
                 
                 // Gradual inward movement as we approach
                 const radiusReduction = this.ballStartRadius * 0.08 * progress;
@@ -512,10 +486,15 @@ export class BallPhysics {
                 this.events.onPhaseChanged('bottom_moving', progress);
             },
             onComplete: () => {
-                console.log("✅ Phase 6 Complete - Natural wheel alignment achieved");
-                this.finalizeBallPosition();
-                this.events.onSpinComplete(this.targetWinningNumber);
-                this.startSmoothWheelSynchronization();
+                console.log("✅ Phase 6 Complete - checking alignment before finalization");
+                if (this.checkBottomPositionAlignment()) {
+                    this.finalizeBallPosition();
+                    this.events.onSpinComplete(this.targetWinningNumber);
+                    this.startSmoothWheelSynchronization();
+                } else {
+                    console.log("⏳ Not aligned at end of drift - continuing with gradual capture");
+                    this.executePhase7_GradualCapture();
+                }
             }
         });
     }
@@ -621,10 +600,20 @@ export class BallPhysics {
                 this.events.onPhaseChanged('gradual_capture', progress);
             },
             onComplete: () => {
-                console.log("✅ Phase 7 Complete - Ball gradually captured by target pocket");
-                this.finalizeBallPosition();
-                this.events.onSpinComplete(this.targetWinningNumber);
-                this.startSmoothWheelSynchronization();
+                // Ensure we don't snap: if still not tightly aligned, run a short smooth alignment
+                const targetAngle = this.roulette.getAngleForNumber(this.targetWinningNumber);
+                const currentWheelRotation = this.roulette.roulleteSpinContainer.rotation;
+                const targetWorldAngle = this.normalizeAngle(currentWheelRotation + targetAngle);
+                const distanceDeg = Math.abs(this.normalizeAngle(targetWorldAngle - this.currentBallAngle)) * (180 / Math.PI);
+                if (distanceDeg > 0.5) {
+                    console.log(`🧲 Running final smooth alignment (${distanceDeg.toFixed(2)}° remaining)`);
+                    this.smoothAlignToMovingTargetAndFinalize();
+                } else {
+                    console.log("✅ Phase 7 Complete - Ball captured and aligned");
+                    this.finalizeBallPosition();
+                    this.events.onSpinComplete(this.targetWinningNumber);
+                    this.startSmoothWheelSynchronization();
+                }
             }
         });
     }
@@ -794,10 +783,9 @@ export class BallPhysics {
         // 🔧 FIX: Only set final state - position is already smoothly set by Phase 7
         // Don't change ball position here to avoid teleporting
         
-        const targetAngle = this.roulette.getAngleForNumber(this.targetWinningNumber);
-        
-        // Store the correct relative position for future updates
-        this.ballRelativeAngleToWheel = targetAngle; // Same angle as target number
+        const currentWheelRotation = this.roulette.roulleteSpinContainer.rotation;
+        // Store the relative position as it currently is to avoid any jump
+        this.ballRelativeAngleToWheel = this.normalizeAngle(this.currentBallAngle - currentWheelRotation);
         
         // Clean up physical properties but don't change position
         this.ballRadius = this.ballEndRadius;
@@ -817,9 +805,41 @@ export class BallPhysics {
         }
         
         console.log(`🏁 Ball finalized in target number ${this.targetWinningNumber} pocket (no teleporting - gradually captured by Phase 7)`);
-        console.log(`📍 Target number angle: ${(targetAngle * 180 / Math.PI).toFixed(2)}°`);
         console.log(`📍 Ball relative angle to wheel: ${(this.ballRelativeAngleToWheel * 180 / Math.PI).toFixed(2)}°`);
         console.log(`📍 Ball world angle: ${(this.currentBallAngle * 180 / Math.PI).toFixed(2)}°`);
+    }
+
+    /**
+     * 🧲 Smoothly align the ball to the moving target pocket and then finalize.
+     * Avoids any snap/teleport if the capture tween ends slightly misaligned.
+     */
+    private smoothAlignToMovingTargetAndFinalize(): void {
+        const initialAngle = this.currentBallAngle;
+        const maxDuration = 0.9; // short, subtle alignment
+        const alignmentState = { t: 0 };
+        this.currentTween = Globals.gsap?.to(alignmentState, {
+            t: 1,
+            duration: maxDuration,
+            ease: "power2.out",
+            onUpdate: () => {
+                // Recompute moving target each frame so alignment tracks wheel rotation
+                const targetAngle = this.roulette.getAngleForNumber(this.targetWinningNumber);
+                const currentWheelRotation = this.roulette.roulleteSpinContainer.rotation;
+                const targetWorldAngle = this.normalizeAngle(currentWheelRotation + targetAngle);
+                const eased = this.currentTween?.progress() || 0;
+                const startToTarget = this.normalizeAngle(targetWorldAngle - initialAngle);
+                this.currentBallAngle = this.normalizeAngle(initialAngle + startToTarget * eased);
+                // Stay at bottom with subtle visual stability
+                this.ballRadius = this.ballEndRadius;
+                this.ballVerticalPosition = 0;
+                this.updateBallVisualEffects();
+            },
+            onComplete: () => {
+                this.finalizeBallPosition();
+                this.events.onSpinComplete(this.targetWinningNumber);
+                this.startSmoothWheelSynchronization();
+            }
+        });
     }
 
     /**
@@ -941,6 +961,18 @@ export class BallPhysics {
     public update(dt: number): void {
         // 🔧 FIX: Use actual delta time from MainScene for all motion calculations
         this.accumulatedTime += dt;
+
+        // 🆕 Continuous friction-based deceleration for dt-driven phases
+        if (this.currentPhase === 'launching' || this.currentPhase === 'orbital' || this.currentPhase === 'approaching') {
+            const dtSeconds = dt / 1000;
+            const omega = this.ballVelocity;
+            // dω/dt = -(c1·ω + c2·ω²)
+            const frictionScale = (this.currentPhase === 'launching') ? this.FRICTION_LAUNCH_MULTIPLIER : 1.0;
+            const c1 = this.FRICTION_LINEAR * frictionScale;
+            const c2 = this.FRICTION_QUADRATIC * frictionScale;
+            const domega = -(c1 * omega + c2 * omega * omega);
+            this.ballVelocity = Math.max(0, omega + domega * dtSeconds);
+        }
         
         // Update ball position with proper delta time during active phases
         if (this.currentPhase === 'orbital' || this.currentPhase === 'launching' || 
