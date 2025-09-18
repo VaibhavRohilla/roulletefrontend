@@ -301,8 +301,29 @@ export class GameCycleManager {
             this.stopPolling();
             this.isCountdownActive = true;
             this.events.onRoundStart(secondsRemaining);
+
+            // Near-end safeguard: probe for spin in the last 3 seconds of countdown
+            const earlyResumeMs = Math.max(0, timeRemaining - 3000);
+            setTimeout(() => {
+                if (this.isDestroyed || !this.isCountdownActive) return;
+                console.log("🛡️ Near-end safeguard: probing for spin-result every 1s during last 3s of countdown");
+                const probe = setInterval(async () => {
+                    if (this.isDestroyed || !this.isCountdownActive) { clearInterval(probe); return; }
+                    try {
+                        const spin = await this.fetchSpinResult();
+                        if (spin) {
+                            clearInterval(probe);
+                            console.log("🛡️ Safeguard caught spin during countdown end:", spin);
+                            this.isCountdownActive = false;
+                            this.handleActiveSpin({ roundActive: false, isSpinning: true, spinIndex: spin.spinIndex });
+                        }
+                    } catch (e) {
+                        // ignore and keep probing
+                    }
+                }, 1000);
+            }, earlyResumeMs);
             
-            // Resume polling after countdown
+            // Resume polling after countdown (existing flow)
             setTimeout(() => {
                 this.onCountdownComplete();
             }, timeRemaining);

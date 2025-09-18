@@ -77,6 +77,7 @@ export class GameNetworkManager {
      */
     private handleSpinTrigger(spinIndex: number): void {
         console.log(`🎰 API Spin triggered! Index: ${spinIndex}`);
+        console.log("🔎 Network->Spin state:", this.getConnectionInfo());
         this.events.onServerSpin(spinIndex);
     }
 

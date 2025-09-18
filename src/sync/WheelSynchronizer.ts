@@ -30,9 +30,25 @@ export class WheelSynchronizer {
      * @param onComplete Optional callback when start transition is complete
      */
     public startGradualRotation(onComplete?: () => void): void {
-        if (this.isRunning || this.isTransitioning) {
-            console.log("🔄 Wheel rotation already running or transitioning");
+        // If wheel already at constant speed, invoke callback immediately
+        if (this.isRunning) {
+            console.log("🔄 Wheel already running - invoking start callback immediately");
+            onComplete?.();
             return;
+        }
+
+        // If wheel is in a transition (typically stopping), interrupt and start fresh
+        if (this.isTransitioning) {
+            console.log("⏹️ Interrupting wheel transition to start immediately");
+            if (this.transitionTween) {
+                this.transitionTween.kill();
+                this.transitionTween = null;
+            }
+            if (this.constantWheelTween) {
+                this.constantWheelTween.kill();
+                this.constantWheelTween = null;
+            }
+            this.isTransitioning = false;
         }
 
         console.log("🚀 WHEEL SYNCHRONIZER: Starting gradual wheel rotation with smooth acceleration - NEW VERSION ACTIVE!");
@@ -44,8 +60,8 @@ export class WheelSynchronizer {
         // Start with very slow rotation and gradually accelerate
         this.transitionTween = Globals.gsap?.to(this, {
             currentSpeed: this.targetSpeed,
-            duration: 2.5, // EASING FIX: Slightly longer for smoother feel
-            ease: "expo.out", // EASING FIX: Exponential easing for ultra-smooth casino feel
+            duration: 2.0, // slightly faster start for responsiveness
+            ease: "expo.out",
             onUpdate: () => {
                 this.updateConstantRotation();
             },

@@ -114,12 +114,18 @@ export class BallPhysics {
      */
     public startSpin(winningNumber: number): void {
         if (this.isSpinning || winningNumber < 0 || winningNumber >= ROULETTE_CONFIG.pocketCount) {
-            console.warn(`🎾 Invalid winning number: ${winningNumber}`);
+            console.warn(`🎾 Invalid or rejected winning number: ${winningNumber} | isSpinning=${this.isSpinning}`);
             return;
         }
 
         console.log(`🚀 Starting SMOOTH Ball Physics for target NUMBER: ${winningNumber}`);
         console.log(`🔊 SOUND STATE: Spin should already be active from MainScene.startSpin()`);
+        console.log("🔎 BallPhysics pre-start state:", {
+            isSpinning: this.isSpinning,
+            currentPhase: this.currentPhase,
+            currentBallAngle: this.currentBallAngle,
+            ballRadius: this.ballRadius
+        });
         
         this.isSpinning = true;
         this.targetWinningNumber = winningNumber;

@@ -312,7 +312,34 @@ export class MainScene extends Scene {
         this.gameUI.stopCountdown();
         
         // Execute spin with validated input
+        console.log("🔎 Spin path state before start:", {
+            isSpinning: this.isSpinning,
+            countdownRunning: this.gameUI.isCountdownRunning(),
+            wheelRunning: this.wheelSync.isRotating(),
+            wheelTransitioning: this.wheelSync.isInTransition()
+        });
+
         this.startSpin(spinIndex);
+
+        // Watchdog: ensure spin really started within 400ms
+        setTimeout(() => {
+            const watchdogState = {
+                ballIsSpinning: this.ballPhysics.getIsSpinning(),
+                mainIsSpinning: this.isSpinning,
+                wheelRunning: this.wheelSync.isRotating(),
+                wheelTransitioning: this.wheelSync.isInTransition()
+            };
+            console.log("🕵️ Spin watchdog check:", watchdogState);
+            if (!watchdogState.ballIsSpinning || !watchdogState.mainIsSpinning) {
+                console.warn("⚠️ Spin watchdog: forcing wheel and ball start");
+                this.wheelSync.stopRotation();
+                this.wheelSync.startGradualRotation(() => {
+                    this.isSpinning = true;
+                    this.updateGameState();
+                    this.ballPhysics.startSpin(spinIndex);
+                });
+            }
+        }, 400);
     }
 
     /**
@@ -392,16 +419,15 @@ export class MainScene extends Scene {
         console.log(`🎯 Starting spin to NUMBER ${winningNumber} (not index!)`);
         console.log("🔥 NEW CODE VERSION - WHEEL SYNC FIX ACTIVE");
         
-        this.isSpinning = true;
-        this.updateGameState();
-        
-        // 🚀 ISSUE 1 FIX: Start wheel gradual rotation FIRST, then ball after wheel reaches speed
+        // 🚀 Start wheel first; only mark spinning once the wheel is ready
         console.log("🎰 Starting wheel gradual rotation first - FIXED VERSION");
         console.log("🔍 WheelSync object:", this.wheelSync ? "EXISTS" : "MISSING");
         console.log("🔍 WheelSync status:", this.wheelSync?.getStatus());
         
         this.wheelSync.startGradualRotation(() => {
             console.log("✅ Wheel reached full speed - NOW starting ball animation for perfect sync");
+            this.isSpinning = true;
+            this.updateGameState();
             console.log(`🎾 About to start ball physics for winning number: ${winningNumber}`);
             
             // 🔊 SOUND INTEGRATION: Start spin state for sound effects
